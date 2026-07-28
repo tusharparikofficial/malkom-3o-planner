@@ -43,6 +43,8 @@ git clone https://github.com/tusharparikofficial/malkom-3o-planner.git
 cd malkom-3o-planner
 
 # 3. Create the database (psql lives in PostgreSQL's bin, e.g. C:\Program Files\PostgreSQL\17\bin)
+#    Set PGPASSWORD first so psql doesn't prompt (use YOUR postgres superuser password):
+set PGPASSWORD=<your-postgres-password>
 psql -U postgres -c "CREATE ROLE malkom LOGIN PASSWORD 'malkom' CREATEDB;"
 psql -U postgres -c "CREATE DATABASE malkom OWNER malkom;"
 
@@ -52,11 +54,14 @@ copy .env.example .env
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 # 5. Install, migrate, seed, run
-pnpm install
+pnpm install                  # also runs `prisma generate` via postinstall
 pnpm db:migrate
 pnpm db:seed
 pnpm dev
 ```
+
+If you see `@prisma/client did not initialize yet`, run `pnpm --filter @malkom/api db:generate`
+once (only needed on installs made before the postinstall hook existed).
 
 Open http://localhost:5173 and sign in with the dev login (any email;
 addresses in `SEED_SUPER_ADMIN_EMAILS` become Super Admins automatically).

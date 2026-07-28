@@ -1,0 +1,43 @@
+# Run the portal anywhere from the images GitHub Actions publishes to ghcr.io —
+# no source checkout or build step needed on the host.
+#
+#   1. docker login ghcr.io -u <github-user> -p <PAT with read:packages>
+#   2. copy vps.env.example → .env next to this file and fill it in
+#   3. docker compose -f docker-compose.ghcr.yml pull && docker compose -f docker-compose.ghcr.yml up -d
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: malkom
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      POSTGRES_DB: malkom
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U malkom"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    image: ghcr.io/tusharparikofficial/malkom-3o-planner/api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://malkom:${DB_PASSWORD}@db:5432/malkom
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    image: ghcr.io/tusharparikofficial/malkom-3o-planner/web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8090}:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

@@ -85,6 +85,33 @@ Secrets & infrastructure → environment variables (`.env`, validated at startup
 `.env.example`). Author-changeable values (brand colors, logo, site title, feature flags)
 → `AppSetting` table, editable in the UI at **/admin/settings**, applied without redeploy.
 
+## CI & deployment (GitHub only)
+
+Every push runs `.github/workflows/deploy.yml`:
+
+1. **CI** — typecheck all packages + production web build (also on PRs).
+2. **Publish** (main only) — builds the API and Web Docker images and pushes them to
+   **GitHub Container Registry**:
+   - `ghcr.io/tusharparikofficial/malkom-3o-planner/api` (`:latest` + commit SHA tags)
+   - `ghcr.io/tusharparikofficial/malkom-3o-planner/web`
+
+Nothing is deployed to any server — the runnable images live on GitHub. To run the
+portal on any Docker host later:
+
+```bash
+docker login ghcr.io -u <github-user>   # PAT with read:packages
+cd deploy && cp vps.env.example .env    # fill in values
+docker compose -f docker-compose.ghcr.yml pull
+docker compose -f docker-compose.ghcr.yml up -d
+```
+
+The API container applies pending Prisma migrations automatically on start. Seed the
+first content with:
+`docker compose -f docker-compose.ghcr.yml exec api pnpm --filter @malkom/api db:seed`.
+Pin a specific version with `IMAGE_TAG=<commit-sha>` in the `.env`.
+(`docker-compose.prod.yml` at the repo root is the build-from-source variant of the
+same stack.)
+
 ## Enabling real InstaSafe SSO
 
 1. Ask the InstaSafe console admin to register MALKOM as a SAML SP — hand them the XML

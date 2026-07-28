@@ -10,10 +10,31 @@
   --brand-primary-soft: #e6f1f7;
   --brand-ink: #000000;
   --brand-surface: #ffffff;
+  --brand-deep: #00405e;
+  /* RGB channel triplets — keep in sync with the hex values above; Tailwind
+     needs channels to support opacity modifiers (bg-primary/50 etc.). The
+     runtime theme bootstrap sets both forms from AppSetting. */
+  --brand-primary-rgb: 0 112 173;
+  --brand-primary-hover-rgb: 0 90 140;
+  --brand-primary-soft-rgb: 230 241 247;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  @apply bg-slate-50 font-sans text-slate-900 antialiased;
+  @apply font-sans text-slate-900 antialiased;
+  background-color: #f6f8fa;
+  background-image:
+    radial-gradient(1100px 480px at 85% -140px, color-mix(in srgb, var(--brand-primary) 9%, transparent), transparent 70%),
+    radial-gradient(800px 380px at -10% 30%, color-mix(in srgb, var(--brand-primary) 4%, transparent), transparent 65%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--brand-primary);
+  color: #fff;
 }
 
 .material-symbols-rounded {
@@ -23,6 +44,11 @@ body {
     "GRAD" 0,
     "opsz" 24;
   vertical-align: middle;
+}
+
+/* Numbers align in KPIs, tables, gantt axis */
+.tnum {
+  font-variant-numeric: tabular-nums;
 }
 
 .prose-malkom h1,
@@ -36,8 +62,11 @@ body {
 .prose-malkom p { @apply mb-3 leading-relaxed text-slate-700; }
 .prose-malkom ul { @apply mb-3 list-disc pl-6 text-slate-700; }
 .prose-malkom ol { @apply mb-3 list-decimal pl-6 text-slate-700; }
-.prose-malkom a { @apply text-primary underline; }
-.prose-malkom strong { @apply font-semibold; }
+.prose-malkom a { @apply text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary; }
+.prose-malkom strong { @apply font-semibold text-slate-900; }
+.prose-malkom code { @apply rounded bg-slate-100 px-1.5 py-0.5 text-[0.85em] text-slate-800; }
+.prose-malkom blockquote { @apply mb-3 border-l-4 border-primary/30 pl-4 italic text-slate-600; }
 .prose-malkom table { @apply mb-3 w-full border-collapse text-sm; }
 .prose-malkom th,
 .prose-malkom td { @apply border border-slate-200 px-3 py-1.5 text-left; }
+.prose-malkom th { @apply bg-slate-50 font-semibold; }

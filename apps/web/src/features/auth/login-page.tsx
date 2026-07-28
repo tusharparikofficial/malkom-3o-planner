@@ -41,10 +41,22 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <Card className="w-full max-w-md p-8">
+    <div
+      className="flex min-h-screen items-center justify-center px-4"
+      style={{
+        background:
+          "linear-gradient(160deg, var(--brand-primary) 0%, var(--brand-primary-hover) 45%, var(--brand-deep, #00405e) 100%)",
+      }}
+    >
+      <Card className="w-full max-w-md animate-fade-up p-8 shadow-2xl">
         <div className="mb-6 text-center">
-          <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded bg-primary text-xl font-bold text-white">
+          <span
+            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl text-2xl font-bold text-white shadow-lg"
+            style={{
+              background:
+                "linear-gradient(135deg, var(--brand-primary), var(--brand-deep, #00405e))",
+            }}
+          >
             M
           </span>
           <h1 className="text-xl font-semibold text-slate-900">{siteTitle}</h1>

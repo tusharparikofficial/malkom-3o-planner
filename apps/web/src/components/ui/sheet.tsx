@@ -16,10 +16,10 @@ export function Sheet({ open, onOpenChange, title, children, className }: SheetP
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/30" />
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-[2px]" />
         <Dialog.Content
           className={cn(
-            "fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-white shadow-xl focus:outline-none",
+            "fixed inset-y-0 right-0 z-50 flex w-full max-w-md animate-slide-in-right flex-col bg-white shadow-2xl focus:outline-none",
             className,
           )}
         >

@@ -25,6 +25,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       const value = data.settings[key as keyof typeof data.settings];
       if (typeof value === "string") {
         document.documentElement.style.setProperty(cssVar, value);
+        // Tailwind opacity modifiers need the RGB channel form too.
+        const rgb = hexToRgbChannels(value);
+        if (rgb) document.documentElement.style.setProperty(`${cssVar}-rgb`, rgb);
       }
     }
     const title = data.settings["site.title"];
@@ -36,4 +39,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
 export function useSettings() {
   return useContext(SettingsContext);
+}
+
+function hexToRgbChannels(hex: string): string | null {
+  const match = /^#([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return null;
+  const n = parseInt(match[1]!, 16);
+  return `${(n >> 16) & 255} ${(n >> 8) & 255} ${n & 255}`;
 }

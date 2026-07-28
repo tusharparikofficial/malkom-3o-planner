@@ -24,10 +24,17 @@ export function FeedbackFab() {
           setOpen(true);
           trackEvent({ type: "FEEDBACK_OPEN", pageSlug });
         }}
-        className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-105 hover:bg-primary-hover"
+        className="group fixed bottom-6 right-6 z-30 flex h-14 items-center gap-0 rounded-full px-[15px] text-white shadow-fab transition-all hover:gap-2 hover:pl-5 hover:pr-6"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover))",
+        }}
         aria-label="Give feedback"
       >
         <Icon name="rate_review" className="text-2xl" />
+        <span className="w-0 overflow-hidden whitespace-nowrap text-sm font-medium opacity-0 transition-all duration-300 group-hover:w-auto group-hover:opacity-100">
+          Give feedback
+        </span>
       </button>
       {open && <FeedbackDrawer open={open} onOpenChange={setOpen} pageSlug={pageSlug} />}
     </>

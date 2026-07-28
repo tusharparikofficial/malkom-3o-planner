@@ -14,7 +14,10 @@ export function SectionView({ section, page }: { section: PageSection; page: Pag
   return (
     <section className="space-y-4">
       {section.slug !== "hero" && (
-        <h2 className="text-xl font-semibold text-slate-900">{section.title}</h2>
+        <h2 className="flex items-center gap-2.5 text-xl font-semibold tracking-tight text-slate-900">
+          <span className="h-5 w-1 rounded-full bg-gradient-to-b from-primary to-primary-hover" />
+          {section.title}
+        </h2>
       )}
       {section.blocks.map((block) => (
         <BlockRenderer key={block.id} block={block} embeds={page.embeds} />

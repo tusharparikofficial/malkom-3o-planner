@@ -1,8 +1,15 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { BLOCK_KINDS, GROUP_CHILD_KINDS, validateBlockPayload, type BlockKind } from "@malkom/shared";
+import {
+  BLOCK_KINDS,
+  GROUP_CHILD_KINDS,
+  roleAtLeast,
+  validateBlockPayload,
+  type BlockKind,
+} from "@malkom/shared";
 import { prisma } from "../../lib/prisma.js";
 import { ok, fail } from "../../lib/envelope.js";
+import { notifySuperAdmins } from "../notifications/service.js";
 
 const idParams = z.object({ id: z.string().min(1) });
 
@@ -20,11 +27,17 @@ const updateSchema = z.object({
   note: z.string().max(300).optional(),
 });
 
-/** Content block CRUD + publish workflow — the authoring studio's API (Phase 3 UI). */
+/**
+ * Content block CRUD + publish workflow — the authoring studio's API.
+ * ADMINs may contribute: create blocks (always drafts, Super Admins are
+ * notified) and edit their OWN drafts. Publish/archive/revert stay
+ * SUPER_ADMIN-only.
+ */
 export async function adminBlocksRoutes(app: FastifyInstance) {
   const guard = { preHandler: [app.requireRole("SUPER_ADMIN")] };
+  const contributorGuard = { preHandler: [app.requireRole("ADMIN")] };
 
-  app.post("/admin/blocks", guard, async (req, reply) => {
+  app.post("/admin/blocks", contributorGuard, async (req, reply) => {
     const input = createSchema.parse(req.body);
 
     const parsed = validateBlockPayload(input.kind, input.payload);
@@ -47,14 +60,38 @@ export async function adminBlocksRoutes(app: FastifyInstance) {
         createdById: req.user!.id,
       },
     });
+
+    // Contributions from Admins go to the Super Admin review queue.
+    if (!roleAtLeast(req.user!.role, "SUPER_ADMIN")) {
+      const section = await prisma.section.findUnique({
+        where: { id: input.sectionId },
+        include: { page: { select: { title: true } } },
+      });
+      void notifySuperAdmins({
+        actorId: req.user!.id,
+        type: "BLOCK_ADDED",
+        message: `${req.user!.name} added a ${input.kind.replaceAll("_", " ").toLowerCase()} block on “${section?.page.title ?? "a page"} › ${section?.title ?? "section"}” — review & publish`,
+        entityType: "CONTENT_BLOCK",
+        entityId: block.id,
+      }).catch((err) => req.log.error({ err }, "notification failed"));
+    }
     return ok(block);
   });
 
-  app.patch("/admin/blocks/:id", guard, async (req, reply) => {
+  app.patch("/admin/blocks/:id", contributorGuard, async (req, reply) => {
     const { id } = idParams.parse(req.params);
     const input = updateSchema.parse(req.body);
     const existing = await prisma.contentBlock.findUnique({ where: { id } });
     if (!existing) return reply.code(404).send(fail("Block not found"));
+
+    // Admins may only edit their own unpublished drafts.
+    const isSuper = roleAtLeast(req.user!.role, "SUPER_ADMIN");
+    const ownDraft = existing.createdById === req.user!.id && existing.status === "DRAFT";
+    if (!isSuper && !ownDraft) {
+      return reply
+        .code(403)
+        .send(fail("Admins can only edit their own draft blocks — use a suggestion instead"));
+    }
 
     const payloadChanged = input.payload !== undefined;
     let payload = existing.payload;

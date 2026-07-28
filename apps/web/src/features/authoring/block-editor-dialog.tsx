@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { BLOCK_FORMS, KIND_DEFAULTS, type FieldDef } from "./block-form-config";
+import { useEditMode } from "./edit-mode";
 
 export type EditorMode =
   | { type: "create"; sectionId: string; parentId?: string; kind: string; order: number }
@@ -171,12 +172,28 @@ export function BlockEditorDialog({ mode, onClose }: Props) {
             {save.isPending ? "Saving…" : mode.type === "create" ? "Add as draft" : "Save draft"}
           </Button>
         </div>
-        <p className="text-xs text-slate-400">
-          Saves as a <strong>draft</strong> — publish it from the block toolbar to make it visible
-          to viewers.
-        </p>
+        <SaveNote />
       </div>
     </Dialog>
+  );
+}
+
+function SaveNote() {
+  const { isSuperAdmin } = useEditMode();
+  return (
+    <p className="text-xs text-slate-400">
+      {isSuperAdmin ? (
+        <>
+          Saves as a <strong>draft</strong> — publish it from the block toolbar to make it visible
+          to viewers.
+        </>
+      ) : (
+        <>
+          Saves as a <strong>draft</strong> — the programme team is notified and will review,
+          adjust if needed, and publish it.
+        </>
+      )}
+    </p>
   );
 }
 

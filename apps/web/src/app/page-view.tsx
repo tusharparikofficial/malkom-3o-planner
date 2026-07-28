@@ -51,9 +51,10 @@ function flattenBlocks(blocks: BlockNode[]): BlockNode[] {
   return blocks.flatMap((b) => [b, ...flattenBlocks(b.children)]);
 }
 
-/** Sticky bar shown in edit mode: draft count + publish-all. */
+/** Sticky bar shown in edit/contribute mode: draft count + publish-all. */
 function EditBar({ page }: { page: PageData }) {
   const queryClient = useQueryClient();
+  const { isSuperAdmin } = useEditMode();
   const drafts = page.sections.flatMap((s) => flattenBlocks(s.blocks)).filter((b) => b.status === "DRAFT");
 
   const publishAll = useMutation({
@@ -66,15 +67,24 @@ function EditBar({ page }: { page: PageData }) {
   });
 
   return (
-    <div className="sticky top-16 z-10 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/95 px-4 py-2.5 shadow-card backdrop-blur-sm">
+    <div className="sticky top-16 z-10 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/95 px-4 py-2.5 shadow-card backdrop-blur-sm lg:top-4">
       <Icon name="edit_note" className="text-xl text-amber-600" />
       <span className="text-sm text-amber-900">
-        <strong>Edit mode</strong> — changes save as drafts.{" "}
-        {drafts.length > 0
-          ? `${drafts.length} draft block${drafts.length > 1 ? "s" : ""} on this page.`
-          : "No unpublished drafts here."}
+        {isSuperAdmin ? (
+          <>
+            <strong>Edit mode</strong> — changes save as drafts.{" "}
+            {drafts.length > 0
+              ? `${drafts.length} draft block${drafts.length > 1 ? "s" : ""} on this page.`
+              : "No unpublished drafts here."}
+          </>
+        ) : (
+          <>
+            <strong>Contribute mode</strong> — blocks you add are drafts; the programme team is
+            notified and publishes after review. Use the ✎ icon on any item to suggest changes.
+          </>
+        )}
       </span>
-      {drafts.length > 0 && (
+      {isSuperAdmin && drafts.length > 0 && (
         <Button
           size="sm"
           className="ml-auto"

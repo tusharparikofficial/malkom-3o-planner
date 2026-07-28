@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useEditMode } from "./edit-mode";
 import { BlockEditorDialog, type EditorMode } from "./block-editor-dialog";
 import { AddBlockButton } from "./add-block";
+import { SuggestButton } from "./suggest-popover";
 
 interface Neighbor {
   id: string;
@@ -25,12 +26,15 @@ interface BlockShellProps {
 }
 
 /**
- * Edit-mode wrapper around a rendered block: status chip + toolbar
- * (edit, move, publish, archive, history). Renders children untouched
- * when edit mode is off.
+ * Role-aware wrapper around a rendered block:
+ * - SUPER_ADMIN in edit mode → full toolbar (edit/move/publish/archive/history)
+ * - ADMIN in contribute mode → edit toolbar on their OWN drafts, hover
+ *   suggest icon on everything else
+ * - ADMIN/SUPER_ADMIN outside edit mode → hover suggest icon
+ * - VIEWER → plain content
  */
 export function BlockShell({ block, sectionId, prev, next, children }: BlockShellProps) {
-  const { editMode } = useEditMode();
+  const { editMode, canEdit, isSuperAdmin, userId } = useEditMode();
   const [editor, setEditor] = useState<EditorMode | null>(null);
   const [history, setHistory] = useState(false);
   const queryClient = useQueryClient();
@@ -43,9 +47,46 @@ export function BlockShell({ block, sectionId, prev, next, children }: BlockShel
     onSuccess: invalidate,
   });
 
-  if (!editMode) return <>{children}</>;
+  if (!canEdit) return <>{children}</>;
 
   const isDraft = block.status === "DRAFT";
+  const ownDraft = isDraft && block.createdById === userId;
+
+  // Admin (or anyone below full edit rights): hover suggest icon.
+  if (!editMode || (!isSuperAdmin && !ownDraft)) {
+    return (
+      <div className="group/suggest relative">
+        <SuggestButton block={block} />
+        {children}
+      </div>
+    );
+  }
+
+  // Admin contribute mode on their own draft: edit-only toolbar.
+  if (!isSuperAdmin) {
+    return (
+      <div className="relative rounded-xl ring-1 ring-amber-300">
+        <div className="absolute -top-3.5 right-3 z-10 flex items-center gap-1 rounded-full border border-slate-200 bg-white px-1.5 py-1 shadow-card">
+          <Badge tone="warn">pending review</Badge>
+          <ToolButton
+            icon="edit"
+            label="Edit your draft"
+            onClick={() =>
+              setEditor({
+                type: "edit",
+                blockId: block.id,
+                kind: block.kind,
+                payload: block.payload as Record<string, unknown>,
+              })
+            }
+          />
+        </div>
+        <div className="opacity-90">{children}</div>
+        {editor && <BlockEditorDialog mode={editor} onClose={() => setEditor(null)} />}
+      </div>
+    );
+  }
+
   const childKinds = GROUP_CHILD_KINDS[block.kind as BlockKind] ?? [];
 
   return (

@@ -18,31 +18,43 @@ export function EditModeProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** True only when the user is a Super Admin AND has toggled edit mode on. */
+/**
+ * Edit mode is available from ADMIN up:
+ * - SUPER_ADMIN: full authoring (edit/publish/archive everything)
+ * - ADMIN: contribute mode (add blocks + edit own drafts; suggest on the rest)
+ */
 export function useEditMode() {
   const { editMode, setEditMode } = useContext(EditModeContext);
-  const { hasRole } = useAuth();
-  const canEdit = hasRole("SUPER_ADMIN");
-  return { editMode: canEdit && editMode, canEdit, setEditMode };
+  const { hasRole, user } = useAuth();
+  const canEdit = hasRole("ADMIN");
+  const isSuperAdmin = hasRole("SUPER_ADMIN");
+  return {
+    editMode: canEdit && editMode,
+    canEdit,
+    isSuperAdmin,
+    userId: user?.id ?? "",
+    setEditMode,
+  };
 }
 
-/** Header toggle — visible to Super Admins only. */
+/** Sidebar toggle — "Edit" for Super Admins, "Contribute" for Admins. */
 export function EditModeToggle() {
-  const { editMode, canEdit, setEditMode } = useEditMode();
+  const { editMode, canEdit, isSuperAdmin, setEditMode } = useEditMode();
   if (!canEdit) return null;
+  const label = isSuperAdmin ? "Edit pages" : "Contribute";
   return (
     <button
       type="button"
       onClick={() => setEditMode(!editMode)}
-      className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
         editMode
           ? "bg-amber-100 text-amber-800 ring-1 ring-amber-300"
-          : "text-slate-500 hover:bg-slate-100"
+          : "text-slate-600 hover:bg-slate-100"
       }`}
-      title={editMode ? "Exit edit mode" : "Edit page content"}
+      title={editMode ? "Exit edit mode" : label}
     >
-      <Icon name={editMode ? "edit_off" : "edit"} className="text-lg" />
-      <span className="hidden lg:inline">{editMode ? "Editing" : "Edit"}</span>
+      <Icon name={editMode ? "edit_off" : "edit"} className="text-xl" />
+      {editMode ? "Editing on" : label}
     </button>
   );
 }

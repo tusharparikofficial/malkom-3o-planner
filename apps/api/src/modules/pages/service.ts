@@ -8,6 +8,7 @@ export interface BlockNode {
   payload: unknown;
   order: number;
   status: string;
+  createdById: string;
   children: BlockNode[];
 }
 
@@ -20,6 +21,7 @@ function buildBlockTree(blocks: ContentBlock[]): BlockNode[] {
       payload: b.payload,
       order: b.order,
       status: b.status,
+      createdById: b.createdById,
       children: [],
     });
   }

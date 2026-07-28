@@ -4,6 +4,7 @@ export interface BlockNode {
   payload: Record<string, unknown>;
   order: number;
   status: string;
+  createdById: string;
   children: BlockNode[];
 }
 

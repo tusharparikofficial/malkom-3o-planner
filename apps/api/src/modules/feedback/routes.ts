@@ -1,9 +1,10 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { feedbackBatchSchema, feedbackStatusChangeSchema } from "@malkom/shared";
+import { feedbackBatchSchema, feedbackStatusChangeSchema, roleAtLeast } from "@malkom/shared";
 import { prisma } from "../../lib/prisma.js";
 import { ok, fail } from "../../lib/envelope.js";
 import { getFeedbackTargets } from "./targets.js";
+import { notifySuperAdmins } from "../notifications/service.js";
 
 const targetsQuery = z.object({ page: z.string().min(1).max(80) });
 const listQuery = z.object({
@@ -30,6 +31,15 @@ export async function feedbackRoutes(app: FastifyInstance) {
         }),
       ),
     );
+    // Route to the programme team — skip self-notifying Super Admins.
+    if (!roleAtLeast(req.user!.role, "SUPER_ADMIN")) {
+      const kinds = [...new Set(entries.map((e) => e.type.replaceAll("_", " ").toLowerCase()))];
+      void notifySuperAdmins({
+        actorId: req.user!.id,
+        type: "FEEDBACK_SUBMITTED",
+        message: `${req.user!.name} submitted ${created.length} feedback item${created.length > 1 ? "s" : ""} (${kinds.join(", ")})`,
+      }).catch((err) => req.log.error({ err }, "notification failed"));
+    }
     return ok({ created: created.length, ids: created.map((f) => f.id) });
   });
 

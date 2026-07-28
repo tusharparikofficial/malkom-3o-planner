@@ -110,6 +110,7 @@ model User {
   revisions ContentRevision[]
   assets    Asset[]
   auditLogs AuditLog[]
+  notificationsSent Notification[] @relation("NotificationActor")
 }
 
 model Session {
@@ -348,6 +349,23 @@ model AnalyticsEvent {
 
   @@index([userId, createdAt])
   @@index([pageSlug, type, createdAt])
+}
+
+model Notification {
+  id            String      @id @default(cuid())
+  recipientRole Role?       // role-targeted (e.g. all SUPER_ADMINs) …
+  recipientId   String?     // … or a specific user
+  actorId       String
+  actor         User        @relation("NotificationActor", fields: [actorId], references: [id])
+  type          String      // BLOCK_ADDED | FEEDBACK_SUBMITTED | ...
+  message       String
+  entityType    EntityType?
+  entityId      String?
+  readAt        DateTime?
+  createdAt     DateTime    @default(now())
+
+  @@index([recipientRole, readAt, createdAt])
+  @@index([recipientId, readAt, createdAt])
 }
 
 model AuditLog {

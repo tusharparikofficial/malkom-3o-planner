@@ -1,0 +1,364 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+enum Role {
+  VIEWER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum BlockStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BlockKind {
+  HERO
+  RICH_TEXT
+  KPI_STRIP
+  GRID_GROUP
+  STAT
+  CARD
+  LIST_ITEM
+  QUOTE
+  THEME_GROUP
+  PROBLEM_STATEMENT
+  BLUEPRINT_BLOCK
+  DIAGRAM
+  IMAGE
+  DATA_TABLE
+  CTA
+  APPROACH_EMBED
+  TIMELINE_EMBED
+}
+
+enum FeedbackType {
+  GENERAL
+  SUGGESTION
+  EDIT_PROPOSAL
+  QUESTION
+  CONCERN
+}
+
+enum FeedbackStatus {
+  OPEN
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+  RESOLVED
+}
+
+enum EntityType {
+  PAGE
+  SECTION
+  CONTENT_BLOCK
+  APPROACH
+  APPROACH_OPTION
+  CRITERION
+  CRITERION_SCORE
+  CONSIDERATION
+  TIMELINE_PHASE
+  TIMELINE_MILESTONE
+}
+
+enum PhaseStatus {
+  PLANNED
+  IN_PROGRESS
+  DONE
+  AT_RISK
+}
+
+enum MilestoneStatus {
+  PLANNED
+  IN_PROGRESS
+  DONE
+  AT_RISK
+  SLIPPED
+}
+
+enum EventType {
+  PAGE_VIEW
+  PAGE_EXIT
+  SECTION_VIEW
+  FEEDBACK_OPEN
+  FEEDBACK_SUBMIT
+  NAV_CLICK
+}
+
+// ---------- Auth & Users ----------
+model User {
+  id         String    @id @default(cuid())
+  ssoUserId  String    @unique
+  email      String    @unique
+  name       String
+  role       Role      @default(VIEWER)
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime?
+
+  sessions  Session[]
+  feedback  Feedback[]
+  comments  Comment[]
+  events    AnalyticsEvent[]
+  revisions ContentRevision[]
+  assets    Asset[]
+  auditLogs AuditLog[]
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+
+  @@index([userId, expiresAt])
+}
+
+// ---------- Runtime configuration & assets ----------
+model AppSetting {
+  key         String   @id
+  value       Json
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Asset {
+  id           String   @id @default(cuid())
+  fileName     String
+  mimeType     String
+  bytes        Int
+  storagePath  String
+  alt          String?
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+// ---------- Content backbone ----------
+model Page {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  title     String
+  summary   String
+  order     Int
+  updatedAt DateTime  @updatedAt
+  sections  Section[]
+}
+
+model Section {
+  id          String         @id @default(cuid())
+  pageId      String
+  page        Page           @relation(fields: [pageId], references: [id])
+  slug        String
+  title       String
+  description String?
+  order       Int
+  blocks      ContentBlock[]
+
+  @@unique([pageId, slug])
+}
+
+model ContentBlock {
+  id          String            @id @default(cuid())
+  sectionId   String
+  section     Section           @relation(fields: [sectionId], references: [id])
+  parentId    String?
+  parent      ContentBlock?     @relation("BlockChildren", fields: [parentId], references: [id])
+  children    ContentBlock[]    @relation("BlockChildren")
+  kind        BlockKind
+  payload     Json
+  order       Int
+  status      BlockStatus       @default(DRAFT)
+  createdById String
+  updatedById String?
+  publishedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  revisions   ContentRevision[]
+
+  @@index([sectionId, status, order])
+}
+
+model ContentRevision {
+  id         String       @id @default(cuid())
+  blockId    String
+  block      ContentBlock @relation(fields: [blockId], references: [id])
+  kind       BlockKind
+  payload    Json
+  status     BlockStatus
+  editedById String
+  editedBy   User         @relation(fields: [editedById], references: [id])
+  note       String?
+  createdAt  DateTime     @default(now())
+
+  @@index([blockId, createdAt])
+}
+
+// ---------- Approach engine ----------
+model Approach {
+  id                  String           @id @default(cuid())
+  title               String
+  context             String
+  recommendedOptionId String?
+  rationale           String?
+  order               Int
+  updatedAt           DateTime         @updatedAt
+  options             ApproachOption[]
+  considerations      Consideration[]
+  criteria            Criterion[]
+}
+
+model ApproachOption {
+  id             String           @id @default(cuid())
+  approachId     String
+  approach       Approach         @relation(fields: [approachId], references: [id])
+  title          String
+  description    String
+  pros           String[]
+  cons           String[]
+  effort         Int?
+  risk           Int?
+  order          Int
+  scores         CriterionScore[]
+  considerations Consideration[]
+}
+
+model Criterion {
+  id         String           @id @default(cuid())
+  approachId String
+  approach   Approach         @relation(fields: [approachId], references: [id])
+  label      String
+  weight     Int              @default(1)
+  order      Int
+  scores     CriterionScore[]
+}
+
+model CriterionScore {
+  id          String         @id @default(cuid())
+  criterionId String
+  criterion   Criterion      @relation(fields: [criterionId], references: [id])
+  optionId    String
+  option      ApproachOption @relation(fields: [optionId], references: [id])
+  score       Int?
+  note        String?
+
+  @@unique([criterionId, optionId])
+}
+
+model Consideration {
+  id         String          @id @default(cuid())
+  approachId String
+  approach   Approach        @relation(fields: [approachId], references: [id])
+  optionId   String?
+  option     ApproachOption? @relation(fields: [optionId], references: [id])
+  kind       String
+  text       String
+  order      Int
+}
+
+// ---------- Timeline ----------
+model TimelinePhase {
+  id          String              @id @default(cuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  status      PhaseStatus         @default(PLANNED)
+  order       Int
+  milestones  TimelineMilestone[]
+}
+
+model TimelineMilestone {
+  id          String          @id @default(cuid())
+  phaseId     String
+  phase       TimelinePhase   @relation(fields: [phaseId], references: [id])
+  title       String
+  description String?
+  dueDate     DateTime
+  status      MilestoneStatus @default(PLANNED)
+  order       Int
+}
+
+// ---------- Feedback & comments ----------
+model Feedback {
+  id           String             @id @default(cuid())
+  userId       String
+  user         User               @relation(fields: [userId], references: [id])
+  entityType   EntityType
+  entityId     String
+  type         FeedbackType
+  message      String
+  proposedText String?
+  status       FeedbackStatus     @default(OPEN)
+  createdAt    DateTime           @default(now())
+  activity     FeedbackActivity[]
+
+  @@index([entityType, entityId])
+  @@index([status, createdAt])
+}
+
+model FeedbackActivity {
+  id         String         @id @default(cuid())
+  feedbackId String
+  feedback   Feedback       @relation(fields: [feedbackId], references: [id])
+  actorId    String
+  fromStatus FeedbackStatus
+  toStatus   FeedbackStatus
+  note       String?
+  createdAt  DateTime       @default(now())
+}
+
+model Comment {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  entityType EntityType
+  entityId   String
+  parentId   String?
+  parent     Comment?   @relation("Thread", fields: [parentId], references: [id])
+  replies    Comment[]  @relation("Thread")
+  body       String
+  createdAt  DateTime   @default(now())
+
+  @@index([entityType, entityId])
+}
+
+// ---------- Analytics & audit ----------
+model AnalyticsEvent {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  sessionId   String
+  type        EventType
+  pageSlug    String
+  sectionSlug String?
+  durationMs  Int?
+  meta        Json?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([pageSlug, type, createdAt])
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  actorId    String
+  actor      User        @relation(fields: [actorId], references: [id])
+  action     String
+  entityType EntityType?
+  entityId   String?
+  meta       Json?
+  createdAt  DateTime    @default(now())
+
+  @@index([actorId, createdAt])
+}

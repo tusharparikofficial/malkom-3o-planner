@@ -1,0 +1,21 @@
+{
+  "name": "malkom-3o-planner",
+  "private": true,
+  "version": "0.1.0",
+  "description": "MALKOM 3.0 MVP Planner Portal — DB-driven planning portal with feedback tracking and analytics",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @malkom/api --filter @malkom/web dev",
+    "dev:api": "pnpm --filter @malkom/api dev",
+    "dev:web": "pnpm --filter @malkom/web dev",
+    "build": "pnpm --filter @malkom/web build && pnpm --filter @malkom/api build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:migrate": "pnpm --filter @malkom/api db:migrate",
+    "db:seed": "pnpm --filter @malkom/api db:seed",
+    "db:studio": "pnpm --filter @malkom/api db:studio"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.9"
+}

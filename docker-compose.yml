@@ -1,0 +1,23 @@
+# OPTIONAL — dev fallback only. Local development uses the existing Postgres on
+# localhost:5432 (see README). This file is for machines without one; it binds
+# host port 5434 to avoid clashing. Update DATABASE_URL accordingly if used.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: malkom-db
+    environment:
+      POSTGRES_USER: malkom
+      POSTGRES_PASSWORD: malkom
+      POSTGRES_DB: malkom
+    ports:
+      - "5434:5432"
+    volumes:
+      - malkom_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U malkom"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  malkom_pgdata:

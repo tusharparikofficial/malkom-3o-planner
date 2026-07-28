@@ -85,6 +85,22 @@ Secrets & infrastructure → environment variables (`.env`, validated at startup
 `.env.example`). Author-changeable values (brand colors, logo, site title, feature flags)
 → `AppSetting` table, editable in the UI at **/admin/settings**, applied without redeploy.
 
+## Run it on GitHub (Codespaces)
+
+The only GitHub product that *runs* the app is **Codespaces** — a GitHub-hosted
+machine that boots this repo's devcontainer with the full stack (Postgres + API +
+portal) started and seeded automatically.
+
+1. Repo page → green **Code** button → **Codespaces** tab → *Create codespace on main*.
+2. Wait for setup to finish (~2–3 min first time); the portal opens in a preview tab.
+3. **Ports** panel → port **5173 "MALKOM Portal"** → copy the `https://…app.github.dev` URL.
+   Right-click → *Port Visibility* → **Public** to let colleagues open it (the app itself
+   still requires a named login — no anonymous access).
+
+Caveats: a codespace sleeps when idle (Settings → Codespaces → idle timeout, max 4 h)
+and draws from your Codespaces hours quota — it's a pilot/demo environment, not 24/7
+hosting.
+
 ## CI & deployment (GitHub only)
 
 Every push runs `.github/workflows/deploy.yml`:

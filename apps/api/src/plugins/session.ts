@@ -84,7 +84,7 @@ async function sessionPlugin(app: FastifyInstance) {
       reply.setCookie(SESSION_COOKIE, session.id, {
         path: "/",
         httpOnly: true,
-        secure: env.isProd,
+        secure: env.cookieSecure,
         sameSite: "lax",
         signed: true,
         maxAge: env.SESSION_TTL_HOURS * 3600,

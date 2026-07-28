@@ -24,7 +24,7 @@ export async function settingsRoutes(app: FastifyInstance) {
     const settings = await loadSettings();
     const payload: PublicSettings = {
       settings,
-      devLoginEnabled: env.isDev,
+      devLoginEnabled: env.devLoginEnabled,
       ssoEnabled: env.samlEnabled,
     };
     return ok(payload);

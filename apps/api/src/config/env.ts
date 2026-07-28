@@ -26,6 +26,13 @@ const EnvSchema = z.object({
   SAML_IDP_CERT: z.string().optional(),
   SAML_SP_ENTITY_ID: z.string().optional(),
   SAML_SLO_URL: z.string().url().optional(),
+  // Named-user dev login. Defaults to NODE_ENV=development only; may be
+  // explicitly enabled in production for the pilot until InstaSafe SSO is
+  // registered (still no anonymous access — every login is a tracked user).
+  DEV_LOGIN_ENABLED: z.enum(["true", "false"]).optional(),
+  // Secure cookies default on in production; set false while serving plain
+  // HTTP (no TLS yet), otherwise the session cookie is never sent.
+  COOKIE_SECURE: z.enum(["true", "false"]).optional(),
   UPLOADS_DIR: z.string().default("./uploads"),
   MAX_UPLOAD_MB: z.coerce.number().positive().default(10),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
@@ -46,6 +53,14 @@ export const env = {
   ...base,
   isDev: base.NODE_ENV === "development",
   isProd: base.NODE_ENV === "production",
+  devLoginEnabled:
+    base.DEV_LOGIN_ENABLED !== undefined
+      ? base.DEV_LOGIN_ENABLED === "true"
+      : base.NODE_ENV === "development",
+  cookieSecure:
+    base.COOKIE_SECURE !== undefined
+      ? base.COOKIE_SECURE === "true"
+      : base.NODE_ENV === "production",
   superAdminEmails: base.SEED_SUPER_ADMIN_EMAILS.split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean),

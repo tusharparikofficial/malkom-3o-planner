@@ -15,7 +15,7 @@ export async function authRoutes(app: FastifyInstance) {
 
   app.get("/auth/login", async (req, reply) => {
     if (!saml) {
-      if (env.isDev) return reply.redirect(`${env.APP_BASE_URL}/login?dev=1`);
+      if (env.devLoginEnabled) return reply.redirect(`${env.APP_BASE_URL}/login?dev=1`);
       return reply.code(503).send(fail("SSO is not configured yet. Contact the administrator."));
     }
     const url = await saml.getAuthorizeUrlAsync("", undefined, {});
@@ -54,7 +54,7 @@ export async function authRoutes(app: FastifyInstance) {
 
   // Development-only fake login — hard-disabled outside NODE_ENV=development.
   app.post("/auth/dev-login", async (req, reply) => {
-    if (!env.isDev) return reply.code(404).send(fail("Not found"));
+    if (!env.devLoginEnabled) return reply.code(404).send(fail("Not found"));
     const input = devLoginSchema.parse(req.body);
     const user = await provisionUser({
       ssoUserId: input.email.toLowerCase(),

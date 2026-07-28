@@ -27,6 +27,40 @@ pnpm dev                      # api :3001 + web :5173
 `docker-compose.yml` is optional — only for machines without a local Postgres
 (it maps to host port 5434 to avoid clashing with an existing server).
 
+## Windows setup (no Docker)
+
+Prerequisites: Node ≥ 20 (`node -v`), git, and PostgreSQL for Windows
+(installer: https://www.postgresql.org/download/windows/ — remember the
+`postgres` superuser password you choose; default port 5432).
+
+```powershell
+# 1. pnpm
+npm install -g pnpm
+
+# 2. Clone (private repo — sign in when prompted, or use `gh auth login` first)
+cd C:\apps
+git clone https://github.com/tusharparikofficial/malkom-3o-planner.git
+cd malkom-3o-planner
+
+# 3. Create the database (psql lives in PostgreSQL's bin, e.g. C:\Program Files\PostgreSQL\17\bin)
+psql -U postgres -c "CREATE ROLE malkom LOGIN PASSWORD 'malkom' CREATEDB;"
+psql -U postgres -c "CREATE DATABASE malkom OWNER malkom;"
+
+# 4. Environment
+copy .env.example .env
+# generate a session secret and paste it into .env as SESSION_SECRET=
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+# 5. Install, migrate, seed, run
+pnpm install
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
+```
+
+Open http://localhost:5173 and sign in with the dev login (any email;
+addresses in `SEED_SUPER_ADMIN_EMAILS` become Super Admins automatically).
+
 Open http://localhost:5173 — in development you can sign in with any email via the dev
 login. Emails in `SEED_SUPER_ADMIN_EMAILS` become Super Admins automatically.
 

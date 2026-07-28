@@ -90,4 +90,78 @@ export async function adminApproachesRoutes(app: FastifyInstance) {
     const score = await prisma.criterionScore.update({ where: { id }, data: input });
     return ok(score);
   });
+
+  app.patch("/admin/approaches/options/:id", guard, async (req, reply) => {
+    const { id } = idParams.parse(req.params);
+    const input = optionSchema.partial().omit({ approachId: true }).parse(req.body);
+    const existing = await prisma.approachOption.findUnique({ where: { id } });
+    if (!existing) return reply.code(404).send(fail("Option not found"));
+    const option = await prisma.approachOption.update({ where: { id }, data: input });
+    return ok(option);
+  });
+
+  app.delete("/admin/approaches/options/:id", guard, async (req, reply) => {
+    const { id } = idParams.parse(req.params);
+    const existing = await prisma.approachOption.findUnique({ where: { id } });
+    if (!existing) return reply.code(404).send(fail("Option not found"));
+    await prisma.$transaction([
+      prisma.criterionScore.deleteMany({ where: { optionId: id } }),
+      prisma.consideration.deleteMany({ where: { optionId: id } }),
+      prisma.approach.updateMany({
+        where: { id: existing.approachId, recommendedOptionId: id },
+        data: { recommendedOptionId: null },
+      }),
+      prisma.approachOption.delete({ where: { id } }),
+    ]);
+    return ok({ deleted: true });
+  });
+
+  app.patch("/admin/approaches/criteria/:id", guard, async (req, reply) => {
+    const { id } = idParams.parse(req.params);
+    const input = criterionSchema.partial().omit({ approachId: true }).parse(req.body);
+    const existing = await prisma.criterion.findUnique({ where: { id } });
+    if (!existing) return reply.code(404).send(fail("Criterion not found"));
+    const criterion = await prisma.criterion.update({ where: { id }, data: input });
+    return ok(criterion);
+  });
+
+  app.delete("/admin/approaches/criteria/:id", guard, async (req, reply) => {
+    const { id } = idParams.parse(req.params);
+    const existing = await prisma.criterion.findUnique({ where: { id } });
+    if (!existing) return reply.code(404).send(fail("Criterion not found"));
+    await prisma.$transaction([
+      prisma.criterionScore.deleteMany({ where: { criterionId: id } }),
+      prisma.criterion.delete({ where: { id } }),
+    ]);
+    return ok({ deleted: true });
+  });
+
+  const considerationSchema = z.object({
+    approachId: z.string().min(1),
+    optionId: z.string().nullable().optional(),
+    kind: z.enum(["CONSTRAINT", "DEPENDENCY", "ASSUMPTION", "RISK"]),
+    text: z.string().min(1).max(1000),
+    order: z.number().int().min(0),
+  });
+
+  app.post("/admin/approaches/considerations", guard, async (req) => {
+    const input = considerationSchema.parse(req.body);
+    return ok(await prisma.consideration.create({ data: input }));
+  });
+
+  app.patch("/admin/approaches/considerations/:id", guard, async (req, reply) => {
+    const { id } = idParams.parse(req.params);
+    const input = considerationSchema.partial().omit({ approachId: true }).parse(req.body);
+    const existing = await prisma.consideration.findUnique({ where: { id } });
+    if (!existing) return reply.code(404).send(fail("Consideration not found"));
+    return ok(await prisma.consideration.update({ where: { id }, data: input }));
+  });
+
+  app.delete("/admin/approaches/considerations/:id", guard, async (req, reply) => {
+    const { id } = idParams.parse(req.params);
+    const existing = await prisma.consideration.findUnique({ where: { id } });
+    if (!existing) return reply.code(404).send(fail("Consideration not found"));
+    await prisma.consideration.delete({ where: { id } });
+    return ok({ deleted: true });
+  });
 }

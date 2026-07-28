@@ -56,8 +56,9 @@ export async function adminBlocksRoutes(app: FastifyInstance) {
     const existing = await prisma.contentBlock.findUnique({ where: { id } });
     if (!existing) return reply.code(404).send(fail("Block not found"));
 
+    const payloadChanged = input.payload !== undefined;
     let payload = existing.payload;
-    if (input.payload !== undefined) {
+    if (payloadChanged) {
       const parsed = validateBlockPayload(existing.kind as BlockKind, input.payload);
       if (!parsed.success) {
         return reply.code(400).send(fail(`Invalid ${existing.kind} payload: ${parsed.error.message}`));
@@ -65,8 +66,48 @@ export async function adminBlocksRoutes(app: FastifyInstance) {
       payload = parsed.data;
     }
 
-    const [, block] = await prisma.$transaction([
-      // snapshot BEFORE the edit — powers revision history / revert
+    // Pure reorders don't snapshot a revision or demote a published block.
+    const ops = [
+      ...(payloadChanged
+        ? [
+            prisma.contentRevision.create({
+              data: {
+                blockId: id,
+                kind: existing.kind,
+                payload: existing.payload as never,
+                status: existing.status,
+                editedById: req.user!.id,
+                note: input.note ?? null,
+              },
+            }),
+          ]
+        : []),
+      prisma.contentBlock.update({
+        where: { id },
+        data: {
+          ...(payloadChanged ? { payload: payload as never, status: "DRAFT" as const } : {}),
+          ...(input.order !== undefined ? { order: input.order } : {}),
+          updatedById: req.user!.id,
+        },
+      }),
+    ];
+    const results = await prisma.$transaction(ops);
+    return ok(results[results.length - 1]);
+  });
+
+  app.post("/admin/blocks/:id/revert/:revisionId", guard, async (req, reply) => {
+    const { id, revisionId } = z
+      .object({ id: z.string().min(1), revisionId: z.string().min(1) })
+      .parse(req.params);
+    const [existing, revision] = await Promise.all([
+      prisma.contentBlock.findUnique({ where: { id } }),
+      prisma.contentRevision.findUnique({ where: { id: revisionId } }),
+    ]);
+    if (!existing || !revision || revision.blockId !== id) {
+      return reply.code(404).send(fail("Block or revision not found"));
+    }
+    const [, , block] = await prisma.$transaction([
+      // snapshot the current state so the revert itself is revertible
       prisma.contentRevision.create({
         data: {
           blockId: id,
@@ -74,17 +115,15 @@ export async function adminBlocksRoutes(app: FastifyInstance) {
           payload: existing.payload as never,
           status: existing.status,
           editedById: req.user!.id,
-          note: input.note ?? null,
+          note: "before revert",
         },
+      }),
+      prisma.auditLog.create({
+        data: { actorId: req.user!.id, action: "BLOCK_REVERTED", entityType: "CONTENT_BLOCK", entityId: id },
       }),
       prisma.contentBlock.update({
         where: { id },
-        data: {
-          payload: payload as never,
-          ...(input.order !== undefined ? { order: input.order } : {}),
-          updatedById: req.user!.id,
-          status: "DRAFT",
-        },
+        data: { payload: revision.payload as never, status: "DRAFT", updatedById: req.user!.id },
       }),
     ]);
     return ok(block);

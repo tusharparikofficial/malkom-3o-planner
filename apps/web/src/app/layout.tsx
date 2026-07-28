@@ -6,6 +6,7 @@ import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FeedbackFab } from "@/features/feedback/feedback-fab";
+import { EditModeToggle } from "@/features/authoring/edit-mode";
 
 const NAV = [
   { to: "/", label: "Home", end: true },
@@ -77,6 +78,7 @@ export function AppLayout() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <EditModeToggle />
             {hasRole("SUPER_ADMIN") && (
               <NavLink
                 to="/admin/feedback"

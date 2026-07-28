@@ -26,6 +26,14 @@ const milestoneSchema = z.object({
 export async function adminTimelineRoutes(app: FastifyInstance) {
   const guard = { preHandler: [app.requireRole("SUPER_ADMIN")] };
 
+  app.get("/timeline", { preHandler: [app.authenticate] }, async () => {
+    const phases = await prisma.timelinePhase.findMany({
+      orderBy: { order: "asc" },
+      include: { milestones: { orderBy: { order: "asc" } } },
+    });
+    return ok(phases);
+  });
+
   app.post("/admin/timeline/phases", guard, async (req) => {
     const input = phaseSchema.parse(req.body);
     return ok(await prisma.timelinePhase.create({ data: input }));
@@ -50,5 +58,24 @@ export async function adminTimelineRoutes(app: FastifyInstance) {
     const existing = await prisma.timelineMilestone.findUnique({ where: { id } });
     if (!existing) return reply.code(404).send(fail("Milestone not found"));
     return ok(await prisma.timelineMilestone.update({ where: { id }, data: input }));
+  });
+
+  app.delete("/admin/timeline/phases/:id", guard, async (req, reply) => {
+    const { id } = idParams.parse(req.params);
+    const existing = await prisma.timelinePhase.findUnique({ where: { id } });
+    if (!existing) return reply.code(404).send(fail("Phase not found"));
+    await prisma.$transaction([
+      prisma.timelineMilestone.deleteMany({ where: { phaseId: id } }),
+      prisma.timelinePhase.delete({ where: { id } }),
+    ]);
+    return ok({ deleted: true });
+  });
+
+  app.delete("/admin/timeline/milestones/:id", guard, async (req, reply) => {
+    const { id } = idParams.parse(req.params);
+    const existing = await prisma.timelineMilestone.findUnique({ where: { id } });
+    if (!existing) return reply.code(404).send(fail("Milestone not found"));
+    await prisma.timelineMilestone.delete({ where: { id } });
+    return ok({ deleted: true });
   });
 }

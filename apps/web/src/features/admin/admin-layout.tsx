@@ -4,6 +4,8 @@ import { useAuth } from "@/lib/auth";
 const ADMIN_NAV = [
   { to: "/admin/feedback", label: "Feedback" },
   { to: "/admin/analytics", label: "Analytics" },
+  { to: "/admin/approaches", label: "Approaches" },
+  { to: "/admin/timeline", label: "Timeline" },
   { to: "/admin/users", label: "Users" },
   { to: "/admin/settings", label: "Settings & Branding" },
 ];

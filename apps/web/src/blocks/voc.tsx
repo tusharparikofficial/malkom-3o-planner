@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
+import { BlockShell } from "@/features/authoring/block-shell";
+import { useSectionId } from "@/features/authoring/section-context";
 import { BlockRenderer, type BlockProps } from "./renderer";
 
 const sentiment = {
@@ -11,6 +13,7 @@ const sentiment = {
 
 export function ThemeGroupBlock({ block, embeds }: BlockProps) {
   const p = block.payload as { title: string; implication: string };
+  const sectionId = useSectionId();
   return (
     <Card className="overflow-hidden">
       <div className="flex items-center gap-3">
@@ -28,7 +31,14 @@ export function ThemeGroupBlock({ block, embeds }: BlockProps) {
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         {block.children.map((child, i) => (
           <div key={child.id} className="animate-fade-up" style={{ animationDelay: `${i * 60}ms` }}>
-            <BlockRenderer block={child} embeds={embeds} />
+            <BlockShell
+              block={child}
+              sectionId={sectionId}
+              prev={i > 0 ? block.children[i - 1] : undefined}
+              next={i < block.children.length - 1 ? block.children[i + 1] : undefined}
+            >
+              <BlockRenderer block={child} embeds={embeds} />
+            </BlockShell>
           </div>
         ))}
       </div>

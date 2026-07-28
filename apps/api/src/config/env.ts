@@ -1,12 +1,13 @@
 import { z } from "zod";
 
-// Load .env (working dir, then repo root) via Node's native loader — no dotenv dep.
+// Load env via Node's native loader — no dotenv dep. Local apps/api/.env first
+// (wins — loadEnvFile never overrides already-set vars), then repo root .env
+// fills the gaps.
 for (const path of [".env", "../../.env"]) {
   try {
     process.loadEnvFile(path);
-    break;
   } catch {
-    /* file not found — try next */
+    /* file not found — skip */
   }
 }
 

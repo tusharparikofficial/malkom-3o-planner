@@ -7,6 +7,16 @@
  */
 import { PrismaClient, type BlockKind, type Prisma } from "@prisma/client";
 
+// Load env: local apps/api/.env first (wins — loadEnvFile never overrides
+// already-set vars), then repo root .env fills the gaps.
+for (const path of [".env", "../../.env"]) {
+  try {
+    process.loadEnvFile(path);
+  } catch {
+    /* file not found — skip */
+  }
+}
+
 const prisma = new PrismaClient();
 
 async function main() {

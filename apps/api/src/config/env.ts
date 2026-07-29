@@ -33,6 +33,10 @@ const EnvSchema = z.object({
   // Secure cookies default on in production; set false while serving plain
   // HTTP (no TLS yet), otherwise the session cookie is never sent.
   COOKIE_SECURE: z.enum(["true", "false"]).optional(),
+  // Enables the AI diagram generator when present (DeepSeek, OpenAI-compatible).
+  DEEPSEEK_API_KEY: z.string().optional(),
+  DEEPSEEK_MODEL: z.string().default("deepseek-v4-flash"),
+  DEEPSEEK_BASE_URL: z.string().url().default("https://api.deepseek.com"),
   UPLOADS_DIR: z.string().default("./uploads"),
   MAX_UPLOAD_MB: z.coerce.number().positive().default(10),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
@@ -67,6 +71,7 @@ export const env = {
   samlEnabled: Boolean(
     base.SAML_IDP_SSO_URL && base.SAML_IDP_ENTITY_ID && base.SAML_IDP_CERT && base.SAML_SP_ENTITY_ID,
   ),
+  aiEnabled: Boolean(base.DEEPSEEK_API_KEY),
 } as const;
 
 export type Env = typeof env;

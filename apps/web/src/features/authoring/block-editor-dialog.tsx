@@ -65,7 +65,6 @@ function fromFormValues(
       payload[f.name] = raw === "" ? undefined : raw;
     }
   }
-  if (kind === "DIAGRAM") payload.source = "MERMAID";
   return payload;
 }
 
@@ -150,14 +149,16 @@ export function BlockEditorDialog({ mode, onClose }: Props) {
             />
           </Field>
         ) : (
-          (BLOCK_FORMS[kind] ?? []).map((f) => (
-            <EditorField
-              key={f.name}
-              field={f}
-              value={values[f.name] ?? ""}
-              onChange={(v) => setValues((prev) => ({ ...prev, [f.name]: v }))}
-            />
-          ))
+          (BLOCK_FORMS[kind] ?? [])
+            .filter((f) => !f.showWhen || values[f.showWhen.field] === f.showWhen.value)
+            .map((f) => (
+              <EditorField
+                key={f.name}
+                field={f}
+                value={values[f.name] ?? ""}
+                onChange={(v) => setValues((prev) => ({ ...prev, [f.name]: v }))}
+              />
+            ))
         )}
 
         {error && (
@@ -211,6 +212,12 @@ function EditorField({
     queryFn: () => api.get<{ id: string; title: string }[]>("/approaches"),
     enabled: field.type === "approach",
   });
+  const diagrams = useQuery({
+    queryKey: ["library-diagrams"],
+    queryFn: () =>
+      api.get<{ id: string; title: string; diagramType: string }[]>("/diagrams"),
+    enabled: field.type === "librarydiagram",
+  });
 
   const control = useMemo(() => {
     switch (field.type) {
@@ -256,6 +263,17 @@ function EditorField({
             ))}
           </Select>
         );
+      case "librarydiagram":
+        return (
+          <Select value={value} onChange={(e) => onChange(e.target.value)}>
+            <option value="">Select a diagram…</option>
+            {(diagrams.data ?? []).map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.title} ({d.diagramType})
+              </option>
+            ))}
+          </Select>
+        );
       case "icon":
         return (
           <div className="flex items-center gap-2">
@@ -280,7 +298,7 @@ function EditorField({
           />
         );
     }
-  }, [field, value, onChange, approaches.data]);
+  }, [field, value, onChange, approaches.data, diagrams.data]);
 
   return (
     <Field label={field.label}>

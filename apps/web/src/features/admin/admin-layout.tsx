@@ -6,6 +6,7 @@ const ADMIN_NAV = [
   { to: "/admin/analytics", label: "Analytics" },
   { to: "/admin/approaches", label: "Approaches" },
   { to: "/admin/timeline", label: "Timeline" },
+  { to: "/admin/diagrams", label: "Diagrams" },
   { to: "/admin/users", label: "Users" },
   { to: "/admin/settings", label: "Settings & Branding" },
 ];

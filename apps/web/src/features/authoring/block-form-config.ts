@@ -8,12 +8,23 @@ import { KPI_METRIC_KEYS } from "@malkom/shared";
 export interface FieldDef {
   name: string;
   label: string;
-  type: "text" | "textarea" | "markdown" | "number" | "select" | "stringlist" | "icon" | "approach";
+  type:
+    | "text"
+    | "textarea"
+    | "markdown"
+    | "number"
+    | "select"
+    | "stringlist"
+    | "icon"
+    | "approach"
+    | "librarydiagram";
   options?: { value: string; label: string }[];
   placeholder?: string;
   help?: string;
   min?: number;
   max?: number;
+  /** Only render this field when another field holds a specific value. */
+  showWhen?: { field: string; value: string };
 }
 
 export const BLOCK_FORMS: Record<string, FieldDef[]> = {
@@ -101,10 +112,27 @@ export const BLOCK_FORMS: Record<string, FieldDef[]> = {
   ],
   DIAGRAM: [
     {
+      name: "source",
+      label: "Source",
+      type: "select",
+      options: [
+        { value: "LIBRARY", label: "Diagram library (interactive)" },
+        { value: "MERMAID", label: "Mermaid code" },
+      ],
+    },
+    {
+      name: "libraryDiagramId",
+      label: "Library diagram",
+      type: "librarydiagram",
+      showWhen: { field: "source", value: "LIBRARY" },
+      help: "Manage diagrams under Administration → Diagrams (AI generator included).",
+    },
+    {
       name: "mermaid",
       label: "Mermaid source",
       type: "markdown",
-      help: "Rendered as a diagram on the page (https://mermaid.js.org). Source is fixed to MERMAID.",
+      showWhen: { field: "source", value: "MERMAID" },
+      help: "Rendered as a diagram on the page (https://mermaid.js.org).",
     },
     { name: "caption", label: "Caption (optional)", type: "text" },
   ],

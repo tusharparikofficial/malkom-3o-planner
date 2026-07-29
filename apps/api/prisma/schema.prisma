@@ -111,6 +111,7 @@ model User {
   assets    Asset[]
   auditLogs AuditLog[]
   notificationsSent Notification[] @relation("NotificationActor")
+  libraryDiagrams   LibraryDiagram[] @relation("DiagramCreator")
 }
 
 model Session {
@@ -349,6 +350,20 @@ model AnalyticsEvent {
 
   @@index([userId, createdAt])
   @@index([pageSlug, type, createdAt])
+}
+
+// ---------- Diagram library (AI Systems Designer / diagram-engine payloads) ----------
+model LibraryDiagram {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  diagramType String   // sequence | state | overview | entity | block
+  definition  Json     // diagram-engine DiagramDefinition payload
+  createdById String
+  createdBy   User     @relation("DiagramCreator", fields: [createdById], references: [id])
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Notification {

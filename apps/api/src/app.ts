@@ -13,6 +13,7 @@ import { feedbackRoutes } from "./modules/feedback/routes.js";
 import { commentsRoutes } from "./modules/comments/routes.js";
 import { analyticsRoutes } from "./modules/analytics/routes.js";
 import { notificationsRoutes } from "./modules/notifications/routes.js";
+import { diagramsRoutes } from "./modules/diagrams/routes.js";
 import { adminUsersRoutes } from "./modules/admin/users-routes.js";
 import { adminBlocksRoutes } from "./modules/admin/blocks-routes.js";
 import { adminApproachesRoutes } from "./modules/admin/approaches-routes.js";
@@ -55,6 +56,7 @@ export async function buildApp() {
       await commentsRoutes(v1);
       await analyticsRoutes(v1);
       await notificationsRoutes(v1);
+      await diagramsRoutes(v1);
       await adminUsersRoutes(v1);
       await adminBlocksRoutes(v1);
       await adminApproachesRoutes(v1);

@@ -103,16 +103,29 @@ export const blueprintBlockPayload = z.object({
   icon: materialIcon.optional(),
 });
 
+export const DIAGRAM_TYPES = ["overview", "sequence", "state", "block", "entity"] as const;
+export type DiagramType = (typeof DIAGRAM_TYPES)[number];
+
 export const diagramPayload = z
   .object({
-    source: z.enum(["MERMAID", "ASSET"]),
+    source: z.enum(["MERMAID", "ASSET", "LIBRARY"]),
     mermaid: z.string().max(20000).optional(),
     assetId: z.string().optional(),
+    libraryDiagramId: z.string().optional(),
     caption: z.string().max(300).optional(),
   })
-  .refine((v) => (v.source === "MERMAID" ? !!v.mermaid : !!v.assetId), {
-    message: "MERMAID requires `mermaid` source text; ASSET requires `assetId`",
-  });
+  .refine(
+    (v) =>
+      v.source === "MERMAID"
+        ? !!v.mermaid
+        : v.source === "LIBRARY"
+          ? !!v.libraryDiagramId
+          : !!v.assetId,
+    {
+      message:
+        "MERMAID requires `mermaid`; LIBRARY requires `libraryDiagramId`; ASSET requires `assetId`",
+    },
+  );
 
 export const imagePayload = z.object({
   assetId: z.string().min(1),

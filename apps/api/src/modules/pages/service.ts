@@ -90,12 +90,16 @@ async function resolveEmbeds(sections: { blocks: BlockNode[] }[]) {
     .filter((b) => b.kind === "APPROACH_EMBED")
     .map((b) => (b.payload as { approachId?: string }).approachId)
     .filter((id): id is string => Boolean(id));
+  const diagramIds = allBlocks
+    .filter((b) => b.kind === "DIAGRAM")
+    .map((b) => (b.payload as { libraryDiagramId?: string }).libraryDiagramId)
+    .filter((id): id is string => Boolean(id));
   const wantsTimeline = allBlocks.some((b) => b.kind === "TIMELINE_EMBED");
   const kpiKeys = allBlocks
     .filter((b) => b.kind === "KPI_STRIP")
     .flatMap((b) => ((b.payload as { metrics?: { key: string }[] }).metrics ?? []).map((m) => m.key));
 
-  const [approaches, timeline, kpis] = await Promise.all([
+  const [approaches, timeline, kpis, diagrams] = await Promise.all([
     approachIds.length
       ? prisma.approach.findMany({
           where: { id: { in: approachIds } },
@@ -113,12 +117,19 @@ async function resolveEmbeds(sections: { blocks: BlockNode[] }[]) {
         })
       : Promise.resolve([]),
     kpiKeys.length ? resolveKpiValues([...new Set(kpiKeys)]) : Promise.resolve({}),
+    diagramIds.length
+      ? prisma.libraryDiagram.findMany({
+          where: { id: { in: diagramIds } },
+          select: { id: true, title: true, diagramType: true, definition: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   return {
     approaches: Object.fromEntries(approaches.map((a) => [a.id, a])),
     timeline,
     kpis,
+    diagrams: Object.fromEntries(diagrams.map((d) => [d.id, d])),
   };
 }
 

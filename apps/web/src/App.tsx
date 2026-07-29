@@ -9,6 +9,7 @@ import { FeedbackDashboard } from "@/features/admin/feedback-dashboard";
 import { AnalyticsDashboard } from "@/features/admin/analytics-dashboard";
 import { ApproachesManager } from "@/features/admin/approaches-manager";
 import { TimelineManager } from "@/features/admin/timeline-manager";
+import { DiagramsManager } from "@/features/admin/diagrams-manager";
 import { UsersPage } from "@/features/admin/users-page";
 import { SettingsPage } from "@/features/admin/settings-page";
 
@@ -31,6 +32,7 @@ export function App() {
             <Route path="analytics" element={<AnalyticsDashboard />} />
             <Route path="approaches" element={<ApproachesManager />} />
             <Route path="timeline" element={<TimelineManager />} />
+            <Route path="diagrams" element={<DiagramsManager />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>

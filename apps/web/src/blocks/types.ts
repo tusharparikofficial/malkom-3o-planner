@@ -55,10 +55,18 @@ export interface TimelinePhaseData {
   }[];
 }
 
+export interface LibraryDiagramData {
+  id: string;
+  title: string;
+  diagramType: string;
+  definition: unknown;
+}
+
 export interface PageEmbeds {
   approaches: Record<string, ApproachData>;
   timeline: TimelinePhaseData[];
   kpis: Record<string, string>;
+  diagrams: Record<string, LibraryDiagramData>;
 }
 
 export interface PageData {

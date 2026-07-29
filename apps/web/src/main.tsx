@@ -5,6 +5,7 @@ import "@fontsource/ubuntu/400.css";
 import "@fontsource/ubuntu/500.css";
 import "@fontsource/ubuntu/700.css";
 import "material-symbols/rounded.css";
+import "diagram-engine/diagram.css";
 import "@/styles/globals.css";
 import { App } from "@/App";
 import { AuthProvider } from "@/lib/auth";

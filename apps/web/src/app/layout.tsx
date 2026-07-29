@@ -3,6 +3,7 @@ import { NavLink, Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { useSettings } from "@/lib/settings";
 import { usePageTracking } from "@/lib/use-page-tracking";
+import { IS_STATIC } from "@/lib/static";
 import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
 import { FeedbackFab } from "@/features/feedback/feedback-fab";
@@ -147,14 +148,16 @@ export function AppLayout() {
             </div>
             <Badge tone="primary">{user.role.replaceAll("_", " ").toLowerCase()}</Badge>
           </div>
-          <button
-            type="button"
-            onClick={() => void logout()}
-            aria-label="Log out"
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-          >
-            <Icon name="logout" className="text-xl" />
-          </button>
+          {!IS_STATIC && (
+            <button
+              type="button"
+              onClick={() => void logout()}
+              aria-label="Log out"
+              className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            >
+              <Icon name="logout" className="text-xl" />
+            </button>
+          )}
         </div>
       </aside>
 

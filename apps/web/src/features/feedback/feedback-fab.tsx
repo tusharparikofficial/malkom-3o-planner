@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Icon } from "@/components/ui/icon";
 import { trackEvent } from "@/lib/analytics";
+import { IS_STATIC } from "@/lib/static";
 import { FeedbackDrawer } from "./feedback-drawer";
 
 function pageSlugFromPath(pathname: string): string {
@@ -15,6 +16,7 @@ export function FeedbackFab() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const pageSlug = pageSlugFromPath(location.pathname);
+  if (IS_STATIC) return null;
 
   return (
     <>

@@ -10,6 +10,13 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  if (import.meta.env.VITE_STATIC_SNAPSHOT === "1") {
+    if (init?.method && init.method !== "GET") {
+      throw new ApiError("This is a read-only preview — actions are disabled", 403);
+    }
+    const { staticGet } = await import("./static");
+    return staticGet<T>(path);
+  }
   const res = await fetch(`/api/v1${path}`, {
     credentials: "include",
     headers: { "Content-Type": "application/json", ...init?.headers },

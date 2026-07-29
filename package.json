@@ -12,6 +12,7 @@
     "test": "pnpm -r test",
     "db:migrate": "pnpm --filter @malkom/api db:migrate",
     "db:seed": "pnpm --filter @malkom/api db:seed",
+    "snapshot": "pnpm --filter @malkom/api snapshot",
     "db:studio": "pnpm --filter @malkom/api db:studio"
   },
   "engines": {

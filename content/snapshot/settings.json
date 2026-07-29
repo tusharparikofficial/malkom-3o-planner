@@ -1,0 +1,13 @@
+{
+ "settings": {
+  "brand.primaryColor": "#0070AD",
+  "brand.primaryHover": "#005A8C",
+  "brand.primarySoft": "#E6F1F7",
+  "brand.logoAssetId": null,
+  "site.title": "MALKOM 3.0 MVP",
+  "site.footerNotice": "Internal tool. Page usage is tracked per user to improve the MALKOM MVP plan.",
+  "feature.inlineComments": true
+ },
+ "devLoginEnabled": false,
+ "ssoEnabled": false
+}

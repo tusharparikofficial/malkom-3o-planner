@@ -2,6 +2,7 @@ import { createContext, useContext, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { roleAtLeast, type CurrentUser, type Role } from "@malkom/shared";
 import { api, ApiError } from "./api";
+import { IS_STATIC } from "./static";
 
 interface AuthContextValue {
   user: CurrentUser | null;
@@ -17,6 +18,13 @@ const AuthContext = createContext<AuthContextValue>({
   logout: async () => {},
 });
 
+const STATIC_VIEWER: CurrentUser = {
+  id: "static-preview",
+  email: "readonly@preview",
+  name: "Read-only preview",
+  role: "VIEWER",
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
@@ -31,15 +39,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     retry: false,
     staleTime: 5 * 60_000,
+    enabled: !IS_STATIC,
   });
 
-  const user = data ?? null;
+  const user = IS_STATIC ? STATIC_VIEWER : (data ?? null);
 
   const value: AuthContextValue = {
     user,
-    isLoading,
+    isLoading: IS_STATIC ? false : isLoading,
     hasRole: (min) => (user ? roleAtLeast(user.role, min) : false),
     logout: async () => {
+      if (IS_STATIC) return;
       await api.post("/auth/logout");
       queryClient.setQueryData(["auth", "me"], null);
       window.location.href = "/login";

@@ -35,6 +35,76 @@ jobs:
       - name: Build web app
         run: pnpm --filter @malkom/web build
 
+  pages:
+    name: Deploy portal to GitHub Pages
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: malkom
+          POSTGRES_PASSWORD: malkom
+          POSTGRES_DB: malkom
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U malkom"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://malkom:malkom@localhost:5432/malkom
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Content snapshot (committed export preferred, seed as fallback)
+        run: |
+          if [ ! -f content/snapshot/pages.json ]; then
+            echo "No committed snapshot — generating from seed content"
+            pnpm --filter @malkom/api db:deploy
+            pnpm --filter @malkom/api db:seed
+            pnpm --filter @malkom/api snapshot
+          fi
+          mkdir -p apps/web/public/snapshot
+          cp content/snapshot/*.json apps/web/public/snapshot/
+          ls apps/web/public/snapshot/
+
+      - name: Build static portal
+        run: VITE_STATIC_SNAPSHOT=1 VITE_BASE=/malkom-3o-planner/ pnpm --filter @malkom/web build
+
+      - name: SPA fallback for deep links
+        run: cp apps/web/dist/index.html apps/web/dist/404.html
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
   publish:
     name: Publish images to GitHub Container Registry
     needs: ci

@@ -1,0 +1,274 @@
+{
+ "id": "cms4nf9ad001e72odd90qmngg",
+ "slug": "approach",
+ "title": "Approach & Considerations",
+ "summary": "The delivery options we evaluated, scored against weighted criteria, with a clear recommendation.",
+ "sections": [
+  {
+   "id": "cms4nf9aj001g72oduvhcfcj6",
+   "slug": "intro",
+   "title": "How we decided",
+   "description": null,
+   "order": 0,
+   "blocks": [
+    {
+     "id": "cms4nf9ar001i72odeg2p9vl8",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "Each approach below lists its **options**, a weighted **comparison matrix**, and the **considerations** behind the recommendation. Use the feedback button to challenge anything — every option, score and consideration accepts feedback individually."
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cms4nf9ay001k72odrqov85fm",
+   "slug": "approaches",
+   "title": "Approaches",
+   "description": null,
+   "order": 1,
+   "blocks": [
+    {
+     "id": "cms4nf9b4001m72odklcrei1r",
+     "kind": "APPROACH_EMBED",
+     "payload": {
+      "approachId": "cms4nf976000172odoqax0p9h"
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  }
+ ],
+ "embeds": {
+  "approaches": {
+   "cms4nf976000172odoqax0p9h": {
+    "id": "cms4nf976000172odoqax0p9h",
+    "title": "Platform Strategy for MALKOM 3.0",
+    "context": "MALKOM 3.0 must modernise the current workflow while keeping migration risk low. Three delivery options were evaluated against cost, speed and long-term fit.",
+    "recommendedOptionId": "cms4nf976000372odx9whr7rg",
+    "rationale": "Balanced modernisation delivers fastest stakeholder value at acceptable risk.",
+    "order": 0,
+    "updatedAt": "2026-07-28T12:45:23.163Z",
+    "options": [
+     {
+      "id": "cms4nf976000272odolg5fr0x",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "title": "Option A — Rebuild on modern stack",
+      "description": "Greenfield rebuild of the core platform with a phased cut-over.",
+      "pros": [
+       "Clean architecture",
+       "No legacy constraints",
+       "Best long-term velocity"
+      ],
+      "cons": [
+       "Highest upfront cost",
+       "Longest time-to-value",
+       "Parallel-run burden"
+      ],
+      "effort": 5,
+      "risk": 4,
+      "order": 0,
+      "scores": [
+       {
+        "id": "cms4nf97m000d72od0o0s85ke",
+        "criterionId": "cms4nf976000572od6ewahgeu",
+        "optionId": "cms4nf976000272odolg5fr0x",
+        "score": null,
+        "note": null
+       },
+       {
+        "id": "cms4nf97m000g72od369ezbay",
+        "criterionId": "cms4nf976000672odrqyc81r1",
+        "optionId": "cms4nf976000272odolg5fr0x",
+        "score": null,
+        "note": null
+       },
+       {
+        "id": "cms4nf97m000j72od27vreqsu",
+        "criterionId": "cms4nf976000772odidwzr0e7",
+        "optionId": "cms4nf976000272odolg5fr0x",
+        "score": null,
+        "note": null
+       },
+       {
+        "id": "cms4nf97m000m72odl39ali5g",
+        "criterionId": "cms4nf976000872od2h3tcy1r",
+        "optionId": "cms4nf976000272odolg5fr0x",
+        "score": null,
+        "note": null
+       }
+      ]
+     },
+     {
+      "id": "cms4nf976000372odx9whr7rg",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "title": "Option B — Incremental modernisation",
+      "description": "Strangler-pattern modernisation of highest-value modules first.",
+      "pros": [
+       "Early value delivery",
+       "Contained risk per slice",
+       "Budget spread over time"
+      ],
+      "cons": [
+       "Temporary dual-stack complexity",
+       "Needs strong interface discipline"
+      ],
+      "effort": 3,
+      "risk": 2,
+      "order": 1,
+      "scores": [
+       {
+        "id": "cms4nf97m000e72odosfvkdds",
+        "criterionId": "cms4nf976000572od6ewahgeu",
+        "optionId": "cms4nf976000372odx9whr7rg",
+        "score": null,
+        "note": null
+       },
+       {
+        "id": "cms4nf97m000h72od6x78pm24",
+        "criterionId": "cms4nf976000672odrqyc81r1",
+        "optionId": "cms4nf976000372odx9whr7rg",
+        "score": null,
+        "note": null
+       },
+       {
+        "id": "cms4nf97m000k72odynlrb57u",
+        "criterionId": "cms4nf976000772odidwzr0e7",
+        "optionId": "cms4nf976000372odx9whr7rg",
+        "score": null,
+        "note": null
+       },
+       {
+        "id": "cms4nf97m000n72oddgd1665u",
+        "criterionId": "cms4nf976000872od2h3tcy1r",
+        "optionId": "cms4nf976000372odx9whr7rg",
+        "score": null,
+        "note": null
+       }
+      ]
+     },
+     {
+      "id": "cms4nf976000472odphii90b7",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "title": "Option C — Extend current platform",
+      "description": "Keep the existing platform and extend it for MVP scope only.",
+      "pros": [
+       "Lowest cost",
+       "Fastest initial delivery"
+      ],
+      "cons": [
+       "Compounds technical debt",
+       "Limits future capability",
+       "Scaling ceiling"
+      ],
+      "effort": 2,
+      "risk": 3,
+      "order": 2,
+      "scores": [
+       {
+        "id": "cms4nf97m000f72odz5asslnj",
+        "criterionId": "cms4nf976000572od6ewahgeu",
+        "optionId": "cms4nf976000472odphii90b7",
+        "score": null,
+        "note": null
+       },
+       {
+        "id": "cms4nf97m000i72oddb8jqatx",
+        "criterionId": "cms4nf976000672odrqyc81r1",
+        "optionId": "cms4nf976000472odphii90b7",
+        "score": null,
+        "note": null
+       },
+       {
+        "id": "cms4nf97m000l72odkvmgmary",
+        "criterionId": "cms4nf976000772odidwzr0e7",
+        "optionId": "cms4nf976000472odphii90b7",
+        "score": null,
+        "note": null
+       },
+       {
+        "id": "cms4nf97m000o72od6tfvehji",
+        "criterionId": "cms4nf976000872od2h3tcy1r",
+        "optionId": "cms4nf976000472odphii90b7",
+        "score": null,
+        "note": null
+       }
+      ]
+     }
+    ],
+    "criteria": [
+     {
+      "id": "cms4nf976000572od6ewahgeu",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "label": "Cost",
+      "weight": 3,
+      "order": 0
+     },
+     {
+      "id": "cms4nf976000672odrqyc81r1",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "label": "Time-to-market",
+      "weight": 3,
+      "order": 1
+     },
+     {
+      "id": "cms4nf976000772odidwzr0e7",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "label": "Scalability",
+      "weight": 2,
+      "order": 2
+     },
+     {
+      "id": "cms4nf976000872od2h3tcy1r",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "label": "Migration risk",
+      "weight": 2,
+      "order": 3
+     }
+    ],
+    "considerations": [
+     {
+      "id": "cms4nf976000972od8jp4jqfu",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "optionId": null,
+      "kind": "CONSTRAINT",
+      "text": "MVP must land within the current budget cycle.",
+      "order": 0
+     },
+     {
+      "id": "cms4nf976000a72od675iyfic",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "optionId": null,
+      "kind": "DEPENDENCY",
+      "text": "InstaSafe SSO integration is required before rollout.",
+      "order": 1
+     },
+     {
+      "id": "cms4nf976000b72odukr72l7i",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "optionId": null,
+      "kind": "ASSUMPTION",
+      "text": "Current data model can be migrated incrementally.",
+      "order": 2
+     },
+     {
+      "id": "cms4nf976000c72odo4qe9lhi",
+      "approachId": "cms4nf976000172odoqax0p9h",
+      "optionId": null,
+      "kind": "RISK",
+      "text": "Key-person dependency on legacy platform knowledge.",
+      "order": 3
+     }
+    ]
+   }
+  },
+  "timeline": [],
+  "kpis": {}
+ }
+}

@@ -36,6 +36,7 @@ function flush(useBeacon = false) {
 }
 
 export function trackEvent(event: QueuedEvent) {
+  if (import.meta.env.VITE_STATIC_SNAPSHOT === "1") return;
   queue = [...queue, event];
   if (queue.length >= FLUSH_BATCH_SIZE) flush();
   if (!timer) {

@@ -1,0 +1,61 @@
+{
+ "id": "cms4nf9fg002t72odhpdc4idc",
+ "slug": "voice-of-customer",
+ "title": "Voice of Customer",
+ "summary": "What users and stakeholders are telling us, grouped into actionable themes.",
+ "sections": [
+  {
+   "id": "cms4nf9fn002v72ody6j42xta",
+   "slug": "themes",
+   "title": "Themes",
+   "description": null,
+   "order": 0,
+   "blocks": [
+    {
+     "id": "cms4nf9ft002x72od5bv7erey",
+     "kind": "THEME_GROUP",
+     "payload": {
+      "title": "Visibility",
+      "implication": "The portal must make programme status obvious within one screen."
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": [
+      {
+       "id": "cms4nf9g0002z72odn42u3023",
+       "kind": "QUOTE",
+       "payload": {
+        "text": "I never know which version of the plan is current.",
+        "sentiment": "NEGATIVE",
+        "personaName": "Operations Lead"
+       },
+       "order": 0,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      },
+      {
+       "id": "cms4nf9g7003172od5so3vzfz",
+       "kind": "QUOTE",
+       "payload": {
+        "text": "Give me one link I can open before every steering call.",
+        "sentiment": "NEUTRAL",
+        "personaName": "Programme Sponsor"
+       },
+       "order": 1,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "embeds": {
+  "approaches": {},
+  "timeline": [],
+  "kpis": {}
+ }
+}

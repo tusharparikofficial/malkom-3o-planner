@@ -93,11 +93,20 @@ jobs:
       # With VITE_SUPABASE_* repo variables set, this builds the fully dynamic
       # portal (Supabase auth + data). Without them it falls back to the
       # read-only static snapshot.
+      #
+      # PAGES_CUSTOM_DOMAIN repo variable (e.g. malkom3.shipping-wns.app) serves
+      # the site at the domain root and writes the CNAME file Pages requires;
+      # unset, the site stays on the /malkom-3o-planner/ project path.
       - name: Build portal
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
-        run: VITE_STATIC_SNAPSHOT=1 VITE_BASE=/malkom-3o-planner/ pnpm --filter @malkom/web build
+          CUSTOM_DOMAIN: ${{ vars.PAGES_CUSTOM_DOMAIN }}
+        run: |
+          if [ -n "$CUSTOM_DOMAIN" ]; then BASE=/; else BASE=/malkom-3o-planner/; fi
+          echo "Building with base $BASE"
+          VITE_STATIC_SNAPSHOT=1 VITE_BASE="$BASE" pnpm --filter @malkom/web build
+          if [ -n "$CUSTOM_DOMAIN" ]; then echo "$CUSTOM_DOMAIN" > apps/web/dist/CNAME; fi
 
       - name: SPA fallback for deep links
         run: cp apps/web/dist/index.html apps/web/dist/404.html

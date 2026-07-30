@@ -8,8 +8,11 @@ import { Icon } from "@/components/ui/icon";
 import { Field, Input } from "@/components/ui/field";
 
 /**
- * Supabase-mode sign-in: Microsoft Entra SSO (same pattern as the quantum
- * shipping portal) with an email/password fallback for the pilot phase.
+ * Supabase-mode sign-in. InstaSafe SAML SSO is the primary path (served by the
+ * `sso` Edge Function); email/password is the fallback for the pilot phase.
+ * The Microsoft/Entra button only appears when that provider is actually
+ * configured — otherwise clicking it would dead-end with
+ * "provider is not enabled".
  */
 export function SupabaseLogin() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -21,7 +24,12 @@ export function SupabaseLogin() {
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { data: sso } = useSsoStatus();
+  const { data: sso, isLoading: ssoLoading } = useSsoStatus();
+
+  // Show the SSO button unless the function explicitly reports it disabled, so
+  // a slow or blocked status probe never hides the primary sign-in route.
+  const showSso = sso ? sso.enabled : !ssoLoading;
+  const showMicrosoft = import.meta.env.VITE_ENABLE_MS_LOGIN === "1";
 
   async function signInWithMicrosoft() {
     setError(null);
@@ -68,17 +76,23 @@ export function SupabaseLogin() {
 
   return (
     <div className="space-y-4">
-      {sso?.enabled && (
+      {showSso && (
         <a href={ssoLoginUrl()} className="block">
           <Button className="w-full" size="lg">
-            <Icon name="badge" className="text-xl" /> {sso.loginLabel || "Sign in with InstaSafe SSO"}
+            <Icon name="badge" className="text-xl" />
+            {sso?.loginLabel || "Sign in with InstaSafe SSO"}
           </Button>
         </a>
       )}
 
-      {!sso?.enabled && (
-        <Button className="w-full" size="lg" onClick={() => void signInWithMicrosoft()}>
-          <Icon name="badge" className="text-xl" /> Sign in with Microsoft (WNS)
+      {showMicrosoft && (
+        <Button
+          variant="outline"
+          className="w-full"
+          size="lg"
+          onClick={() => void signInWithMicrosoft()}
+        >
+          <Icon name="window" className="text-xl" /> Sign in with Microsoft
         </Button>
       )}
 

@@ -71,6 +71,13 @@ function samlClient() {
   });
 }
 
+// The login page reads the health route cross-origin from the portal domain.
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+};
+
 const page = (title: string, body: string, status = 200) =>
   new Response(
     `<!doctype html><meta charset="utf-8"><title>${title}</title>
@@ -91,8 +98,11 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const route = url.pathname.replace(/^\/sso/, "").replace(/\/$/, "") || "/";
 
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+
   if (route === "/" && req.method === "GET") {
-    return Response.json({
+    return Response.json(
+      {
       ok: true,
       enabled: SSO_ENABLED,
       loginLabel: LOGIN_LABEL,
@@ -101,10 +111,12 @@ Deno.serve(async (req) => {
       idpConfigured: Boolean(IDP_SSO_URL && IDP_ISSUER),
       certConfigured: Boolean(IDP_CERT),
       allowedDomains: ALLOWED_DOMAINS,
-      jitProvision: JIT,
-      wantResponseSigned: WANT_RESPONSE_SIGNED,
-      appBaseUrl: APP_BASE_URL,
-    });
+        jitProvision: JIT,
+        wantResponseSigned: WANT_RESPONSE_SIGNED,
+        appBaseUrl: APP_BASE_URL,
+      },
+      { headers: CORS },
+    );
   }
 
   if (!SSO_ENABLED) {

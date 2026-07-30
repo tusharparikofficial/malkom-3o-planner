@@ -150,6 +150,11 @@ export async function supabaseRequest<T>(path: string, init?: RequestInit): Prom
     if (method === "DELETE") return rpc<T>(`api_${kind}_delete`, { p_id: seg[3] });
   }
 
+  // ── AI prompt ──
+  if (p === "/admin/ai-prompt" && method === "GET") return rpc<T>("api_admin_ai_prompt");
+  if (p === "/admin/ai-prompt" && method === "POST")
+    return rpc<T>("api_admin_ai_prompt_set", { p_prompt: body?.prompt ?? "" });
+
   // ── diagrams ──
   if (p === "/diagrams") return rpc<T>("api_diagrams");
   if (seg[0] === "diagrams" && seg.length === 2) return rpc<T>("api_diagram", { p_id: seg[1] });

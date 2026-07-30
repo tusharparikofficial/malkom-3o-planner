@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { DiagramViewer } from "@/components/shared/diagram-viewer";
+import { AiPromptEditor } from "./ai-prompt-editor";
 
 interface DiagramListItem {
   id: string;
@@ -51,6 +52,8 @@ export function DiagramsManager() {
 
   return (
     <div className="space-y-4">
+      <AiPromptEditor />
+
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">
           Diagrams live here once and render on any page via a Diagram block (source:

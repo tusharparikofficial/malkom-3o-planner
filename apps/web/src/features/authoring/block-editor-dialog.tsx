@@ -6,6 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { DiagramEditorDialog } from "@/features/admin/diagrams-manager";
 import { BLOCK_FORMS, KIND_DEFAULTS, type FieldDef } from "./block-form-config";
 import { useEditMode } from "./edit-mode";
 
@@ -212,6 +213,8 @@ function EditorField({
     queryFn: () => api.get<{ id: string; title: string }[]>("/approaches"),
     enabled: field.type === "approach",
   });
+  const [creatingDiagram, setCreatingDiagram] = useState(false);
+  const queryClient = useQueryClient();
   const diagrams = useQuery({
     queryKey: ["library-diagrams"],
     queryFn: () =>
@@ -265,14 +268,20 @@ function EditorField({
         );
       case "librarydiagram":
         return (
-          <Select value={value} onChange={(e) => onChange(e.target.value)}>
-            <option value="">Select a diagram…</option>
-            {(diagrams.data ?? []).map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.title} ({d.diagramType})
-              </option>
-            ))}
-          </Select>
+          <div className="space-y-2">
+            <Select value={value} onChange={(e) => onChange(e.target.value)}>
+              <option value="">Select a diagram…</option>
+              {(diagrams.data ?? []).map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.title} ({d.diagramType})
+                </option>
+              ))}
+            </Select>
+            <Button variant="outline" size="sm" onClick={() => setCreatingDiagram(true)}>
+              <Icon name="auto_awesome" className="text-base" />
+              Create one with AI
+            </Button>
+          </div>
         );
       case "icon":
         return (
@@ -304,6 +313,14 @@ function EditorField({
     <Field label={field.label}>
       {control}
       {field.help && <p className="mt-1 text-xs text-slate-400">{field.help}</p>}
+      {creatingDiagram && (
+        <DiagramEditorDialog
+          diagramId={null}
+          onClose={() => setCreatingDiagram(false)}
+          onChanged={() => void queryClient.invalidateQueries({ queryKey: ["library-diagrams"] })}
+          onSaved={(id) => onChange(id)}
+        />
+      )}
     </Field>
   );
 }

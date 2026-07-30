@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FEEDBACK_TYPES, type FeedbackEntryInput, type FeedbackType } from "@malkom/shared";
 import { api } from "@/lib/api";
@@ -8,6 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
 import { Field, Select, Textarea } from "@/components/ui/field";
+
+interface PageSummary {
+  id: string;
+  slug: string;
+  title: string;
+}
 
 interface TargetData {
   page: { entityType: string; entityId: string; label: string };
@@ -29,6 +35,7 @@ interface MyFeedback {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Page the user is currently reading — the default target. */
   pageSlug: string;
 }
 
@@ -42,6 +49,9 @@ const statusTone = {
 
 export function FeedbackDrawer({ open, onOpenChange, pageSlug }: Props) {
   const [tab, setTab] = useState<"new" | "mine">("new");
+  // Target page defaults to the current one but can be changed freely, so
+  // feedback on any page can be raised from anywhere.
+  const [targetPage, setTargetPage] = useState(pageSlug);
   const [sectionId, setSectionId] = useState("");
   const [itemId, setItemId] = useState("");
   const [type, setType] = useState<FeedbackType>("GENERAL");
@@ -49,10 +59,20 @@ export function FeedbackDrawer({ open, onOpenChange, pageSlug }: Props) {
   const [batch, setBatch] = useState<{ entry: FeedbackEntryInput; label: string }[]>([]);
   const queryClient = useQueryClient();
 
-  const { data: targets } = useQuery({
-    queryKey: ["feedback-targets", pageSlug],
-    queryFn: () => api.get<TargetData>(`/feedback/targets?page=${pageSlug}`),
+  useEffect(() => {
+    setTargetPage(pageSlug);
+  }, [pageSlug]);
+
+  const { data: pages } = useQuery({
+    queryKey: ["pages"],
+    queryFn: () => api.get<PageSummary[]>("/pages"),
     enabled: open,
+  });
+
+  const { data: targets } = useQuery({
+    queryKey: ["feedback-targets", targetPage],
+    queryFn: () => api.get<TargetData>(`/feedback/targets?page=${targetPage}`),
+    enabled: open && Boolean(targetPage),
   });
 
   const { data: mine } = useQuery({
@@ -73,6 +93,14 @@ export function FeedbackDrawer({ open, onOpenChange, pageSlug }: Props) {
   });
 
   const section = targets?.sections.find((s) => s.sectionId === sectionId);
+  const pageTitle =
+    pages?.find((p) => p.slug === targetPage)?.title ?? targets?.page.label ?? targetPage;
+
+  function changePage(slug: string) {
+    setTargetPage(slug);
+    setSectionId("");
+    setItemId("");
+  }
 
   function currentEntry(): { entry: FeedbackEntryInput; label: string } | null {
     if (!targets || message.trim().length < 10) return null;
@@ -89,7 +117,7 @@ export function FeedbackDrawer({ open, onOpenChange, pageSlug }: Props) {
         type,
         message: message.trim(),
       },
-      label: `${target.label} · ${type.toLowerCase().replaceAll("_", " ")}`,
+      label: `${pageTitle} › ${target.label} · ${type.toLowerCase().replaceAll("_", " ")}`,
     };
   }
 
@@ -126,6 +154,17 @@ export function FeedbackDrawer({ open, onOpenChange, pageSlug }: Props) {
 
       {tab === "new" ? (
         <div className="space-y-4">
+          <Field label="Page">
+            <Select value={targetPage} onChange={(e) => changePage(e.target.value)}>
+              {(pages ?? []).map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.title}
+                  {p.slug === pageSlug ? " (current page)" : ""}
+                </option>
+              ))}
+            </Select>
+          </Field>
+
           <Field label="Section (optional)">
             <Select
               value={sectionId}
@@ -134,7 +173,7 @@ export function FeedbackDrawer({ open, onOpenChange, pageSlug }: Props) {
                 setItemId("");
               }}
             >
-              <option value="">Whole page — {targets?.page.label ?? pageSlug}</option>
+              <option value="">Whole page — {pageTitle}</option>
               {targets?.sections.map((s) => (
                 <option key={s.sectionId} value={s.sectionId}>
                   {s.title}
@@ -215,6 +254,11 @@ export function FeedbackDrawer({ open, onOpenChange, pageSlug }: Props) {
                 : `Submit ${batch.length + (currentEntry() ? 1 : 0) || ""} feedback`}
             </Button>
           </div>
+
+          <p className="text-xs leading-relaxed text-slate-400">
+            Feedback can be raised for any page from here — switch the page above to comment on a
+            section you are not currently viewing.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">

@@ -111,14 +111,17 @@ export function DiagramsManager() {
   );
 }
 
-function DiagramEditorDialog({
+export function DiagramEditorDialog({
   diagramId,
   onClose,
   onChanged,
+  onSaved,
 }: {
   diagramId: string | null;
   onClose: () => void;
   onChanged: () => void;
+  /** Receives the diagram id after a successful save (used by the block editor). */
+  onSaved?: (id: string) => void;
 }) {
   const isNew = diagramId === null;
   const { data: existing } = useQuery({
@@ -174,11 +177,12 @@ function DiagramEditorDialog({
     mutationFn: () => {
       const body = { title, description: description || undefined, diagramType, definition };
       return isNew
-        ? api.post("/admin/diagrams", body)
-        : api.patch(`/admin/diagrams/${diagramId}`, body);
+        ? api.post<{ id: string }>("/admin/diagrams", body)
+        : api.patch<{ id: string }>(`/admin/diagrams/${diagramId}`, body);
     },
-    onSuccess: () => {
+    onSuccess: (saved) => {
       onChanged();
+      if (saved?.id) onSaved?.(saved.id);
       onClose();
     },
     onError: (e) => setError(e instanceof Error ? e.message : "Save failed"),

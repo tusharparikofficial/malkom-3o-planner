@@ -10,3 +10,4 @@ apps/web/public/snapshot/
 *.log
 .DS_Store
 apps/api/prisma/migrations/**/README.md
+supabase/.temp/

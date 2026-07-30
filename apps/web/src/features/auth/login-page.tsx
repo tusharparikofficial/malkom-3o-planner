@@ -13,6 +13,16 @@ import { Icon } from "@/components/ui/icon";
 const SSO_ERRORS: Record<string, string> = {
   saml_auth_failed: "SSO authentication failed. Please try again.",
   saml_no_identity: "SSO did not return your identity. Contact the administrator.",
+  sso_init_failed: "Could not start single sign-on. Please try again.",
+  sso_auth_failed:
+    "Single sign-on failed — the response could not be verified. Contact the administrator.",
+  sso_no_response: "No response was received from the identity provider.",
+  sso_no_profile: "The identity provider did not return a profile.",
+  sso_no_email: "Single sign-on did not return an email address.",
+  sso_domain_not_allowed: "Your email domain is not permitted on this portal.",
+  sso_user_not_provisioned: "No account exists for you yet — ask an administrator to add you.",
+  sso_provision_failed: "Your account could not be created. Contact the administrator.",
+  sso_session_failed: "Signed in, but the session could not be created. Please try again.",
 };
 
 export function LoginPage() {

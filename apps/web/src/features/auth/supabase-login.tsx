@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
+import { ssoLoginUrl, useSsoStatus } from "@/lib/sso";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Field, Input } from "@/components/ui/field";
@@ -20,6 +21,7 @@ export function SupabaseLogin() {
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: sso } = useSsoStatus();
 
   async function signInWithMicrosoft() {
     setError(null);
@@ -66,9 +68,19 @@ export function SupabaseLogin() {
 
   return (
     <div className="space-y-4">
-      <Button className="w-full" size="lg" onClick={() => void signInWithMicrosoft()}>
-        <Icon name="badge" className="text-xl" /> Sign in with Microsoft (WNS)
-      </Button>
+      {sso?.enabled && (
+        <a href={ssoLoginUrl()} className="block">
+          <Button className="w-full" size="lg">
+            <Icon name="badge" className="text-xl" /> {sso.loginLabel || "Sign in with InstaSafe SSO"}
+          </Button>
+        </a>
+      )}
+
+      {!sso?.enabled && (
+        <Button className="w-full" size="lg" onClick={() => void signInWithMicrosoft()}>
+          <Icon name="badge" className="text-xl" /> Sign in with Microsoft (WNS)
+        </Button>
+      )}
 
       <p className="text-center text-xs uppercase text-slate-400">or with email</p>
 

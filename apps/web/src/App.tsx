@@ -3,6 +3,7 @@ import { AppLayout } from "@/app/layout";
 import { EditModeProvider } from "@/features/authoring/edit-mode";
 import { PageView } from "@/app/page-view";
 import { LoginPage } from "@/features/auth/login-page";
+import { SsoCallback } from "@/features/auth/sso-callback";
 import { SolutionsPage } from "@/features/solutions/solutions-page";
 import { AdminLayout } from "@/features/admin/admin-layout";
 import { FeedbackDashboard } from "@/features/admin/feedback-dashboard";
@@ -19,6 +20,7 @@ export function App() {
       <EditModeProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/sso/callback" element={<SsoCallback />} />
         <Route element={<AppLayout />}>
           <Route path="/" element={<PageView slug="home" />} />
           <Route path="/approach" element={<PageView slug="approach" />} />

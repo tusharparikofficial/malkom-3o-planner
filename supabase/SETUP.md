@@ -99,3 +99,60 @@ unset to keep using the local Fastify + Postgres stack.
 - The DeepSeek key lives in Edge Function secrets, never in the browser.
 - With the repo variables unset, the build falls back to the read-only
   snapshot — the pipeline can never break the site.
+
+---
+
+## InstaSafe SAML SSO
+
+The portal has no server, so the SAML service provider runs as the `sso` Edge
+Function (`supabase/functions/sso/index.ts`): it builds the AuthnRequest,
+validates the signed assertion against the IdP certificate, enforces the email
+domain allow-list, JIT-provisions the user, then hands the browser a single-use
+token that `/sso/callback` exchanges for a Supabase session.
+
+### Endpoints
+
+| Purpose | URL |
+|---|---|
+| Health / config check | `https://<ref>.supabase.co/functions/v1/sso` |
+| Start login | `https://<ref>.supabase.co/functions/v1/sso/login` |
+| **ACS (give this to the IdP admin)** | `https://<ref>.supabase.co/functions/v1/sso/acs` |
+| SP metadata XML | `https://<ref>.supabase.co/functions/v1/sso/metadata` |
+
+### Configuration (Edge Function secrets)
+
+```bash
+supabase secrets set \
+  SSO_ENABLED=true \
+  APP_BASE_URL=https://malkom3.shipping-wns.app \
+  SSO_IDP_SSO_URL=https://wns.app.instasafe.io/console/idpproxy/validate/idp/<app-id> \
+  SSO_IDP_ISSUER=https://wns.app.instasafe.io \
+  SSO_SP_ENTITY_ID=<sp entity id registered with InstaSafe> \
+  SSO_ALLOWED_EMAIL_DOMAINS=wns.com \
+  SSO_JIT_PROVISION=true \
+  SSO_WANT_RESPONSE_SIGNED=false \
+  SSO_LOGIN_LABEL="Sign in with InstaSafe SSO" \
+  --project-ref <ref>
+```
+
+The signing certificate goes in separately (keep the PEM on one line with
+literal `\n`, or pass a file):
+
+```bash
+supabase secrets set SSO_IDP_CERT="$(cat idp-cert.pem)" --project-ref <ref>
+```
+
+`SSO_ENABLED=false` hides the SSO button and returns 503 from the flow, so it
+is safe to deploy before the certificate is in place. Flip it to `true` once
+`certConfigured: true` shows on the health endpoint.
+
+### Notes
+
+- Roles come from the database trigger, not the IdP: everyone lands as VIEWER
+  unless their address is in the `auth.superAdminEmails` AppSetting row.
+- `SSO_DEFAULT_TEAM` has no equivalent here — this schema has roles, not teams.
+- Because the function is stateless there is no `InResponseTo` store;
+  replay protection relies on the XML signature plus the assertion's
+  NotBefore/NotOnOrAfter window (2-minute skew).
+- Failure reasons are logged in the function; the browser only ever receives a
+  short error code that the login page renders as a readable message.

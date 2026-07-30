@@ -90,7 +90,13 @@ jobs:
           cp content/snapshot/*.json apps/web/public/snapshot/
           ls apps/web/public/snapshot/
 
-      - name: Build static portal
+      # With VITE_SUPABASE_* repo variables set, this builds the fully dynamic
+      # portal (Supabase auth + data). Without them it falls back to the
+      # read-only static snapshot.
+      - name: Build portal
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
         run: VITE_STATIC_SNAPSHOT=1 VITE_BASE=/malkom-3o-planner/ pnpm --filter @malkom/web build
 
       - name: SPA fallback for deep links

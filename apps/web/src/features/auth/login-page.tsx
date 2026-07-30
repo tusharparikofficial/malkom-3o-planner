@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useSettings } from "@/lib/settings";
+import { IS_SUPABASE } from "@/lib/supabase-client";
+import { SupabaseLogin } from "./supabase-login";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/field";
@@ -69,7 +71,9 @@ export function LoginPage() {
           </p>
         )}
 
-        {settings?.ssoEnabled && (
+        {IS_SUPABASE && <SupabaseLogin />}
+
+        {!IS_SUPABASE && settings?.ssoEnabled && (
           <a href="/api/v1/auth/login" className="block">
             <Button className="w-full" size="lg">
               <Icon name="badge" className="text-xl" /> Sign in with InstaSafe SSO
@@ -77,7 +81,7 @@ export function LoginPage() {
           </a>
         )}
 
-        {settings?.devLoginEnabled && (
+        {!IS_SUPABASE && settings?.devLoginEnabled && (
           <form onSubmit={handleDevLogin} className="mt-4 space-y-3">
             {settings.ssoEnabled && (
               <p className="text-center text-xs uppercase text-slate-400">or (development only)</p>
@@ -98,7 +102,7 @@ export function LoginPage() {
           </form>
         )}
 
-        {!settings?.ssoEnabled && !settings?.devLoginEnabled && (
+        {!IS_SUPABASE && !settings?.ssoEnabled && !settings?.devLoginEnabled && (
           <p className="text-center text-sm text-slate-500">
             SSO is not configured yet. Contact the administrator.
           </p>

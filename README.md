@@ -101,6 +101,17 @@ Caveats: a codespace sleeps when idle (Settings → Codespaces → idle timeout,
 and draws from your Codespaces hours quota — it's a pilot/demo environment, not 24/7
 hosting.
 
+## Dynamic portal on GitHub Pages (Supabase)
+
+The Pages site runs in one of two modes, decided at build time:
+
+- **Dynamic** (when the `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` repo
+  variables are set): full portal — Microsoft/email login, feedback, authoring,
+  notifications, analytics — backed by Supabase (hosted Postgres + Auth), with
+  the whole API implemented as database functions. No servers to run.
+  Setup guide: [`supabase/SETUP.md`](./supabase/SETUP.md).
+- **Static fallback** (variables unset): the read-only content snapshot.
+
 ## CI & deployment (GitHub only)
 
 Every push runs `.github/workflows/deploy.yml`:

@@ -10,6 +10,11 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  // Supabase mode takes precedence: same paths, database RPC transport.
+  if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    const { supabaseRequest } = await import("./supabase-api");
+    return supabaseRequest<T>(path, init);
+  }
   if (import.meta.env.VITE_STATIC_SNAPSHOT === "1") {
     if (init?.method && init.method !== "GET") {
       throw new ApiError("This is a read-only preview — actions are disabled", 403);

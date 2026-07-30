@@ -5,7 +5,9 @@ import { ApiError } from "./api";
  * The app renders from pre-exported JSON instead of the live API: no login,
  * no feedback, no analytics, no authoring.
  */
-export const IS_STATIC = import.meta.env.VITE_STATIC_SNAPSHOT === "1";
+import { IS_SUPABASE } from "./supabase-client";
+
+export const IS_STATIC = import.meta.env.VITE_STATIC_SNAPSHOT === "1" && !IS_SUPABASE;
 
 function snapshotFile(apiPath: string): string | null {
   const clean = apiPath.split("?")[0] ?? apiPath;

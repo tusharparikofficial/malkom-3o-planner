@@ -1,8 +1,9 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { roleAtLeast, type CurrentUser, type Role } from "@malkom/shared";
 import { api, ApiError } from "./api";
 import { IS_STATIC } from "./static";
+import { IS_SUPABASE, supabase } from "./supabase-client";
 
 interface AuthContextValue {
   user: CurrentUser | null;
@@ -43,6 +44,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const user = IS_STATIC ? STATIC_VIEWER : (data ?? null);
+
+  // Supabase mode: refresh the profile whenever the auth session changes
+  // (OAuth redirect completion, sign-in, sign-out, token refresh).
+  useEffect(() => {
+    if (!IS_SUPABASE) return;
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      void queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [queryClient]);
 
   const value: AuthContextValue = {
     user,

@@ -20,6 +20,16 @@ function flush(useBeacon = false) {
   queue = queue.slice(50);
   const body = JSON.stringify({ events });
 
+  // Supabase mode routes through the RPC adapter (sendBeacon can't carry auth).
+  if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    void import("./api").then(({ api }) =>
+      api.post("/analytics/events", { events }).catch(() => {
+        /* analytics is fire-and-forget */
+      }),
+    );
+    return;
+  }
+
   if (useBeacon && navigator.sendBeacon) {
     navigator.sendBeacon("/api/v1/analytics/events", body);
     return;

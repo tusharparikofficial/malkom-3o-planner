@@ -4,6 +4,7 @@ import { EditModeProvider } from "@/features/authoring/edit-mode";
 import { PageView } from "@/app/page-view";
 import { LoginPage } from "@/features/auth/login-page";
 import { SsoCallback } from "@/features/auth/sso-callback";
+import { AddVoiceButton } from "@/features/voc/add-voice";
 import { SolutionsPage } from "@/features/solutions/solutions-page";
 import { AdminLayout } from "@/features/admin/admin-layout";
 import { FeedbackDashboard } from "@/features/admin/feedback-dashboard";
@@ -27,7 +28,15 @@ export function App() {
           <Route path="/business-problem" element={<PageView slug="business-problem" />} />
           <Route path="/solutions" element={<Navigate to="/solutions/blueprint" replace />} />
           <Route path="/solutions/:tab" element={<SolutionsPage />} />
-          <Route path="/voice-of-customer" element={<PageView slug="voice-of-customer" />} />
+          <Route
+            path="/voice-of-customer"
+            element={
+              <div className="space-y-6">
+                <AddVoiceButton />
+                <PageView slug="voice-of-customer" />
+              </div>
+            }
+          />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="/admin/feedback" replace />} />
             <Route path="feedback" element={<FeedbackDashboard />} />

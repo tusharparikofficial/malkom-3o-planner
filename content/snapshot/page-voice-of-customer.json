@@ -56,6 +56,7 @@
  "embeds": {
   "approaches": {},
   "timeline": [],
-  "kpis": {}
+  "kpis": {},
+  "diagrams": {}
  }
 }

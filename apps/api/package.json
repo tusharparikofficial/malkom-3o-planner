@@ -13,6 +13,7 @@
     "db:migrate": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js migrate dev",
     "db:deploy": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:architecture": "tsx prisma/seed-architecture.ts",
     "db:studio": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js studio",
     "db:generate": "prisma generate",
     "snapshot": "tsx scripts/export-snapshot.ts"

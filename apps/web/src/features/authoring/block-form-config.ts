@@ -110,6 +110,22 @@ export const BLOCK_FORMS: Record<string, FieldDef[]> = {
     { name: "layer", label: "Layer", type: "text", placeholder: "Presentation / Application / Data" },
     { name: "icon", label: "Material icon name", type: "icon" },
   ],
+  DATA_TABLE: [
+    {
+      name: "columns",
+      label: "Column headers (separate with |)",
+      type: "text",
+      placeholder: "Layer | Component | Details",
+    },
+    {
+      name: "rows",
+      label: "Rows (one per line, cells separated by |)",
+      type: "stringlist",
+      placeholder: "Front end | React + Tailwind | —",
+      help: "Each line becomes one table row; separate cells with |.",
+    },
+    { name: "caption", label: "Caption (optional)", type: "text" },
+  ],
   DIAGRAM: [
     {
       name: "source",

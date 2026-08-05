@@ -38,5 +38,13 @@
   "summary": "What users and stakeholders are telling us, grouped into actionable themes.",
   "order": 4,
   "updatedAt": "2026-07-28T12:45:23.453Z"
+ },
+ {
+  "id": "cmsgedtyl0001bhi4s2fct8la",
+  "slug": "architecture",
+  "title": "Architecture & Flow",
+  "summary": "Bookings flow, layered architecture & tech stack, modules, roles and core engines — the consolidated MALKOM 3.0 blueprint.",
+  "order": 5,
+  "updatedAt": "2026-08-05T18:05:34.318Z"
  }
 ]

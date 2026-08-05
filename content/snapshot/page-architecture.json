@@ -1,0 +1,612 @@
+{
+ "id": "cmsgedtyl0001bhi4s2fct8la",
+ "slug": "architecture",
+ "title": "Architecture & Flow",
+ "summary": "Bookings flow, layered architecture & tech stack, modules, roles and core engines — the consolidated MALKOM 3.0 blueprint.",
+ "sections": [
+  {
+   "id": "cmsgedtys0003bhi4gqlv1xov",
+   "slug": "flow-diagram",
+   "title": "Flow Diagram",
+   "description": "Bookings flow • layered architecture & tech stack • modules, roles and core engines",
+   "order": 0,
+   "blocks": [
+    {
+     "id": "cmsgedtyz0005bhi4p6y4neun",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "![MALKOM 3.0 Framework — bookings flow, system architecture, tech stack, modules, roles and core engines](/architecture-poster.png)"
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cmsgedtz60007bhi41addycgf",
+   "slug": "tech-stack",
+   "title": "Tech Stack",
+   "description": "Layer-by-layer technology choices for MALKOM 3.0",
+   "order": 1,
+   "blocks": [
+    {
+     "id": "cmsgedtzc0009bhi45qhtgvzx",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "System architecture — layer-by-layer technology choices for MALKOM 3.0."
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedtzj000bbhi47ohmwzs8",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "🖥 Front end",
+        "React + Radix + shadcn/ui",
+        "—"
+       ],
+       [
+        "🖥 Front end",
+        "TailwindCSS",
+        "—"
+       ],
+       [
+        "🖥 Front end",
+        "Material Icons",
+        "—"
+       ],
+       [
+        "🔌 API stack",
+        "TypeScript / Vite",
+        "—"
+       ],
+       [
+        "🔌 API stack",
+        "Node.js",
+        "As npm"
+       ],
+       [
+        "🔌 API stack",
+        "PostgREST + Prisma + Zod",
+        "—"
+       ],
+       [
+        "⚡ Cache",
+        "Cache layer",
+        "Identified as its own layer — components to be detailed"
+       ],
+       [
+        "🗄 Data / backend",
+        "PostgreSQL",
+        "Transaction and MDM instances"
+       ],
+       [
+        "🗄 Data / backend",
+        "Transaction DB",
+        "Primary and secondary failovers"
+       ],
+       [
+        "🗄 Data / backend",
+        "Vector DB",
+        "—"
+       ],
+       [
+        "⚙ Services",
+        "File Storage",
+        "AWS S3 • Azure Blob Storage • GCP Storage • On-premise MinIO"
+       ],
+       [
+        "⚙ Services",
+        "Connectors / Adapters",
+        "Cloud providers → AAG • storage connectors • database storage connectors • DB adapters"
+       ],
+       [
+        "⚙ Services",
+        "SFTP & Email connectors",
+        "—"
+       ],
+       [
+        "⚙ Services",
+        "Agentic Framework",
+        "—"
+       ],
+       [
+        "⚙ Services",
+        "Observability",
+        "In-built DB logs / cloud logs"
+       ],
+       [
+        "⚙ Services",
+        "ML",
+        "ML framework, deployment and training environment"
+       ]
+      ],
+      "caption": "Layer-by-layer technology choices (from the brainstorm workbook)",
+      "columns": [
+       "Layer",
+       "Component",
+       "Details"
+      ]
+     },
+     "order": 1,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cmsgedtzq000dbhi4hee5bm2u",
+   "slug": "booking-flow",
+   "title": "Booking Flow",
+   "description": "How a booking travels through queues, states, statuses and metrics",
+   "order": 2,
+   "blocks": [
+    {
+     "id": "cmsgedtzw000fbhi4rbucsxq5",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### 📥 Entry point & queue model\n\nWork starts from the list of all open booking requests, organised into queues:"
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu03000hbhi4j1n0b8uq",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "Q (parent queue)",
+        "The parent queue — e.g. Booking or BOL Creation."
+       ],
+       [
+        "Sub-Q (child queue)",
+        "The child queue under a Q — in Booking: New, Amendment… • in BOL Creation: BL Draft, BL Rating…"
+       ]
+      ],
+      "columns": [
+       "Concept",
+       "Definition"
+      ]
+     },
+     "order": 1,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu09000jbhi4ngo64bd6",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### 🏷 States & status"
+     },
+     "order": 2,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu0g000lbhi4m0rkjl3z",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "Booking states",
+        "NEW • AMENDMENT • CANCELLED • SPLIT • CONFIRMED"
+       ],
+       [
+        "Workflow transaction states",
+        "INDEXED (REGISTERED) • PROCESSED • PARKED • QUERY"
+       ],
+       [
+        "Workflow transaction status",
+        "OPEN → WIP → CLOSED (progresses left → right)"
+       ]
+      ],
+      "caption": "Every incoming request is classified into one of the booking states",
+      "columns": [
+       "Group",
+       "Values"
+      ]
+     },
+     "order": 3,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu0n000nbhi4hbsq1c23",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### ⏱ Timestamps & allocation property"
+     },
+     "order": 4,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu0t000pbhi457p8hdni",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "Transaction timestamps",
+        "Every state + status combination carries its own timestamp."
+       ],
+       [
+        "WF allocation property",
+        "Allocate To • When (timestamp) • Trans Start • Trans Touch • Trans End"
+       ]
+      ],
+      "columns": [
+       "Property",
+       "Detail"
+      ]
+     },
+     "order": 5,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu10000rbhi49fnbp79x",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### 📊 Metrics"
+     },
+     "order": 6,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu16000tbhi4h9j1z485",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "Task metrics",
+        "AHT • TAT (states) • TAT (overall)"
+       ],
+       [
+        "Q metrics",
+        "BK TAT • BK Aging"
+       ],
+       [
+        "Audit log metrics",
+        "Task change • Update history (new / old value) • Event state"
+       ]
+      ],
+      "columns": [
+       "Metric group",
+       "Measures"
+      ]
+     },
+     "order": 7,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cmsgedu1d000vbhi41d029q0f",
+   "slug": "modules-pages",
+   "title": "Modules & Pages",
+   "description": "What each persona sees in the MALKOM 3.0 front end",
+   "order": 3,
+   "blocks": [
+    {
+     "id": "cmsgedu1j000xbhi4tdcxj3l0",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### 👤 User — Offshore / Onshore"
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu1q000zbhi4pbmiho6w",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "1",
+        "My Task / My Q — action on list"
+       ],
+       [
+        "2",
+        "Task detail (Q state / workflow state & status) — action on task"
+       ],
+       [
+        "3",
+        "Search tasks and edit all items (based on roles set)"
+       ],
+       [
+        "4",
+        "My performance dashboard"
+       ],
+       [
+        "5",
+        "Edit booking queue information across the life cycle"
+       ],
+       [
+        "6",
+        "Exit task status updates — transfer, query creation (query life cycle)"
+       ],
+       [
+        "7",
+        "Task life cycle"
+       ]
+      ],
+      "columns": [
+       "#",
+       "Page / capability"
+      ]
+     },
+     "order": 1,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu1x0011bhi4ohh38tsf",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### 🛡 Admin"
+     },
+     "order": 2,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu230013bhi48wv17ay1",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "1",
+        "Admin dashboard — real-time status of every Q and Sub-Q (volume, allocation, status)"
+       ],
+       [
+        "2a",
+        "Offshore user profiling — user creation, activation, roles, Q management, capacity management • backup profiling"
+       ],
+       [
+        "2b",
+        "Onshore user profiling — user creation, activation, roles, Q management, capacity management"
+       ],
+       [
+        "3",
+        "Search tasks not assigned (based on roles set)"
+       ],
+       [
+        "4",
+        "Admin search — everything"
+       ],
+       [
+        "5",
+        "Rules setup — Q (field and combination based) / Sub-Q / task / validity → approval based"
+       ],
+       [
+        "6",
+        "Template creation — depending on the state of the Q or task"
+       ],
+       [
+        "7",
+        "List of exceptions — country / region / Q; create and maintain exception lists / maps for onshore and offshore departments"
+       ]
+      ],
+      "columns": [
+       "#",
+       "Page / capability"
+      ]
+     },
+     "order": 3,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu2a0015bhi4kkvdezqa",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### 👑 Super / Dev / IT Admin\n\nFull platform control — sets up and monitors the core engines listed on the Engines & Allocation tab."
+     },
+     "order": 4,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu2h0017bhi4sx60ul9q",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "★",
+        "Everything available to User and Admin"
+       ],
+       [
+        "1",
+        "Dev configs / app settings"
+       ],
+       [
+        "2",
+        "Q creation / Q modifications / Q management"
+       ],
+       [
+        "3",
+        "Monitoring — audit logs • invariant behaviour (monitoring alerts) • SLA resource metrics for hardware and software"
+       ],
+       [
+        "4",
+        "DB access management"
+       ],
+       [
+        "5",
+        "ML pipeline creation / setup / dependencies • monitor ML pipeline (classification or categorisation)"
+       ],
+       [
+        "6",
+        "API management — incoming (from client) and outgoing (to client)"
+       ],
+       [
+        "7",
+        "API key vault management"
+       ],
+       [
+        "8",
+        "Billing and parent data management — billing patterns by Q / Sub-Q / task and others; SLA clauses and rewards"
+       ]
+      ],
+      "columns": [
+       "#",
+       "Page / capability"
+      ]
+     },
+     "order": 5,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cmsgedu2o0019bhi4q1sdckyj",
+   "slug": "engines-allocation",
+   "title": "Engines & Allocation",
+   "description": "How work gets allocated, and the platform services running underneath",
+   "order": 4,
+   "blocks": [
+    {
+     "id": "cmsgedu2u001bbhi4cryvtinv",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### 🎯 Allocation Matrix"
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu31001dbhi4o1l8pbcg",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "Allocation properties",
+        "Country • Region • Office • Q • Sub-Q • Task states • Capacity"
+       ],
+       [
+        "Pseudo properties",
+        "Every Q comes with additional props → rule-based allocation on any combination of Q and Sub-Q properties"
+       ],
+       [
+        "Run by",
+        "Work Allocation Engine — executes the rules for the Allocation Matrix"
+       ]
+      ],
+      "columns": [
+       "Property",
+       "Detail"
+      ]
+     },
+     "order": 1,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu38001fbhi4smw1nbgp",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### ⚙ Core engines & services"
+     },
+     "order": 2,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmsgedu3e001hbhi473v93g4c",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "Validation Engine",
+        "—"
+       ],
+       [
+        "Work Allocation Engine",
+        "Rules for the Allocation Matrix to run"
+       ],
+       [
+        "Agentic Setup & Monitoring",
+        "—"
+       ],
+       [
+        "RBAC / Identity Auth",
+        "OFA / UP / SSO setup"
+       ],
+       [
+        "Workflow Management",
+        "—"
+       ],
+       [
+        "Document / File Management",
+        "Storage / events"
+       ],
+       [
+        "Email Management Service",
+        "—"
+       ],
+       [
+        "SFTP",
+        "Client data input or output"
+       ],
+       [
+        "Master Data Management",
+        "—"
+       ],
+       [
+        "AI Provider Management",
+        "Usage / maintenance"
+       ]
+      ],
+      "caption": "Notes carried over from the brainstorm workbook",
+      "columns": [
+       "Engine / service",
+       "Notes"
+      ]
+     },
+     "order": 3,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  }
+ ],
+ "embeds": {
+  "approaches": {},
+  "timeline": [],
+  "kpis": {},
+  "diagrams": {}
+ }
+}

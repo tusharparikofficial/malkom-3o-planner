@@ -6,6 +6,7 @@ import { LoginPage } from "@/features/auth/login-page";
 import { SsoCallback } from "@/features/auth/sso-callback";
 import { AddVoiceButton } from "@/features/voc/add-voice";
 import { SolutionsPage } from "@/features/solutions/solutions-page";
+import { ArchitecturePage } from "@/features/architecture/architecture-page";
 import { AdminLayout } from "@/features/admin/admin-layout";
 import { FeedbackDashboard } from "@/features/admin/feedback-dashboard";
 import { AnalyticsDashboard } from "@/features/admin/analytics-dashboard";
@@ -28,6 +29,8 @@ export function App() {
           <Route path="/business-problem" element={<PageView slug="business-problem" />} />
           <Route path="/solutions" element={<Navigate to="/solutions/blueprint" replace />} />
           <Route path="/solutions/:tab" element={<SolutionsPage />} />
+          <Route path="/architecture" element={<Navigate to="/architecture/flow-diagram" replace />} />
+          <Route path="/architecture/:tab" element={<ArchitecturePage />} />
           <Route
             path="/voice-of-customer"
             element={

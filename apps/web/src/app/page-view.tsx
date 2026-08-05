@@ -23,10 +23,15 @@ export function SectionView({ section, page }: { section: PageSection; page: Pag
     <SectionIdContext.Provider value={section.id}>
       <section className="space-y-4">
         {section.slug !== "hero" && (
-          <h2 className="flex items-center gap-2.5 text-xl font-semibold tracking-tight text-slate-900">
-            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-primary to-primary-hover" />
-            {section.title}
-          </h2>
+          <div>
+            <h2 className="flex items-center gap-2.5 text-xl font-semibold tracking-tight text-slate-900">
+              <span className="h-5 w-1 rounded-full bg-gradient-to-b from-primary to-primary-hover" />
+              {section.title}
+            </h2>
+            {section.description && (
+              <p className="mt-1 pl-3.5 text-sm text-slate-500">{section.description}</p>
+            )}
+          </div>
         )}
         {section.blocks.map((block, i) => (
           <BlockShell

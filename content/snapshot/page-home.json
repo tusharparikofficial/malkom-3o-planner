@@ -143,8 +143,9 @@
    "approaches.count": "1",
    "options.count": "3",
    "feedback.resolved": "0",
-   "feedback.open": "1",
-   "milestone.next.days": "48"
-  }
+   "milestone.next.days": "41",
+   "feedback.open": "1"
+  },
+  "diagrams": {}
  }
 }

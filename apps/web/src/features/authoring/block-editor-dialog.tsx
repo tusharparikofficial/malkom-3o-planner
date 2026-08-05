@@ -29,9 +29,13 @@ function toFormValues(kind: string, payload: Record<string, unknown>): Record<st
         out[f.name] = ((value as { key: string; label?: string }[]) ?? [])
           .map((m) => (m.label ? `${m.key} | ${m.label}` : m.key))
           .join("\n");
+      } else if (kind === "DATA_TABLE" && f.name === "rows") {
+        out[f.name] = ((value as string[][]) ?? []).map((row) => row.join(" | ")).join("\n");
       } else {
         out[f.name] = ((value as string[]) ?? []).join("\n");
       }
+    } else if (kind === "DATA_TABLE" && f.name === "columns") {
+      out[f.name] = ((value as string[]) ?? []).join(" | ");
     } else {
       out[f.name] = value == null ? "" : String(value);
     }
@@ -55,9 +59,13 @@ function fromFormValues(
           const [key, label] = line.split("|").map((s) => s.trim());
           return label ? { key, label } : { key };
         });
+      } else if (kind === "DATA_TABLE" && f.name === "rows") {
+        payload[f.name] = lines.map((line) => line.split("|").map((s) => s.trim()));
       } else {
         payload[f.name] = lines;
       }
+    } else if (kind === "DATA_TABLE" && f.name === "columns") {
+      payload[f.name] = raw.split("|").map((s) => s.trim()).filter(Boolean);
     } else if (f.type === "number") {
       payload[f.name] = raw === "" ? undefined : Number(raw);
     } else if (kind === "GRID_GROUP" && f.name === "columns") {

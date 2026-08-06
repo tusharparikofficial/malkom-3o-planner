@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Malkom 3.0 — Process Assembler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EFEEE9;--surface:#FBFAF7;--surface2:#F5F4EF;--surface3:#EAE8E0;
+  --ink:#181A19;--ink2:#4A4E4B;--ink3:#7C807C;
+  --rule:#D6D4CA;--rule2:#C2BFB3;
+  --marine:#0F5C4A;--marineLo:#E4EDE9;--marineHi:#15806A;
+  --slate:#3C5A6B;--slateLo:#E7EDF0;
+  --amber:#B8710A;--amberLo:#F7EEDD;
+  --plum:#6B3F5E;--plumLo:#F0E8ED;
+  --rust:#A32B1E;--rustLo:#F7E5E2;
+  --r:4px;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',system-ui,sans-serif;--cond:'IBM Plex Sans Condensed',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--marine);outline-offset:1px}
+svg{display:block;flex-shrink:0}
+.lbl{font-family:var(--cond);font-weight:600;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* shell */
+#app{display:flex;flex-direction:column;height:100vh}
+#top{display:flex;align-items:center;gap:16px;height:50px;padding:0 16px;background:var(--ink);color:#E8EAE8;flex-shrink:0}
+#top .bd{display:flex;align-items:baseline;gap:8px}
+#top .bd b{font-size:14px;font-weight:600;letter-spacing:-.01em;color:#fff}
+#top .bd span{font-family:var(--cond);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7C807C}
+#steps{display:flex;gap:2px;margin-left:6px}
+.stp{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:99px;color:#9DA19E;font-size:12px}
+.stp b{font-family:var(--mono);font-size:10px;width:15px;height:15px;border-radius:99px;background:#2E322F;color:#9DA19E;display:grid;place-items:center;font-weight:500}
+.stp:hover{color:#E8EAE8}
+.stp.on{background:#252927;color:#fff}
+.stp.on b{background:var(--marineHi);color:#06231C}
+.stp.done b{background:#3A4340;color:var(--marineHi)}
+#top .rt{margin-left:auto;display:flex;align-items:center;gap:8px}
+.tbtn{display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid #383C39;border-radius:var(--r);color:#C6C9C6;font-size:12px}
+.tbtn:hover{background:#252927;border-color:#4C514E;color:#fff}
+.tbtn.go{background:var(--marineHi);border-color:var(--marineHi);color:#06231C;font-weight:600}
+.tbtn.go:hover{background:#1A9880}
+
+/* live meters */
+#meters{display:flex;gap:0;align-items:center;padding-left:14px;margin-left:4px;border-left:1px solid #2E322F}
+.mtr{padding:0 12px;border-right:1px solid #2E322F}
+.mtr:last-child{border:0}
+.mtr .v{font-family:var(--mono);font-size:13px;color:#fff;font-variant-numeric:tabular-nums;line-height:1.15}
+.mtr .k{font-family:var(--cond);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:#7C807C}
+.mtr.hero .v{color:var(--marineHi);font-weight:600}
+
+#body{flex:1;overflow:hidden;display:flex}
+.scroll{overflow:auto;height:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 24px 40px}
+h3.sec{font-size:17px;font-weight:600;letter-spacing:-.015em;margin-bottom:3px}
+p.sub{color:var(--ink2);font-size:13px;margin-bottom:20px;max-width:620px}
+
+/* vertical cards */
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:12px}
+.vcard{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:16px;cursor:pointer;transition:.14s;position:relative}
+.vcard:hover{border-color:var(--ink3);transform:translateY(-1px);box-shadow:0 6px 18px -12px rgba(0,0,0,.4)}
+.vcard.on{border-color:var(--marine);box-shadow:0 0 0 1px var(--marine),0 6px 18px -12px rgba(0,0,0,.4);background:var(--surface)}
+.vcard .ico{width:34px;height:34px;border-radius:var(--r);background:var(--marineLo);color:var(--marine);display:grid;place-items:center;margin-bottom:11px}
+.vcard.on .ico{background:var(--marine);color:#fff}
+.vcard h4{font-size:14px;font-weight:600;margin-bottom:3px}
+.vcard .cd{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-bottom:7px}
+.vcard p{font-size:12px;color:var(--ink2);line-height:1.5}
+.vcard .st{margin-top:11px;padding-top:9px;border-top:1px solid var(--rule);display:flex;gap:14px}
+.vcard .st div{font-family:var(--mono);font-size:10.5px;color:var(--ink3)}
+.vcard .st b{color:var(--ink);font-weight:500}
+
+/* stage chain */
+.chain{display:flex;flex-direction:column;gap:0}
+.stage{display:grid;grid-template-columns:26px 1fr;gap:12px}
+.stage .gut{display:flex;flex-direction:column;align-items:center}
+.stage .gut .no{width:22px;height:22px;border-radius:99px;border:1px solid var(--rule2);background:var(--surface);display:grid;place-items:center;font-family:var(--mono);font-size:9.5px;color:var(--ink3);margin-top:11px;flex-shrink:0}
+.stage.on .gut .no{background:var(--marine);border-color:var(--marine);color:#fff}
+.stage .gut .ln{flex:1;width:1px;background:var(--rule2);min-height:6px}
+.stage:last-child .gut .ln{display:none}
+.srow{display:flex;align-items:center;gap:12px;padding:11px 13px;margin:3px 0;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);cursor:pointer;transition:.12s}
+.srow:hover{border-color:var(--ink3)}
+.stage.on .srow{border-color:var(--rule2);background:var(--surface)}
+.stage:not(.on) .srow{opacity:.5;background:transparent;border-style:dashed}
+.srow .tx h5{font-size:13px;font-weight:600}
+.srow .tx p{font-size:11.5px;color:var(--ink3);margin-top:1px}
+.srow .meta{margin-left:auto;display:flex;align-items:center;gap:16px}
+.srow .meta .u{font-family:var(--mono);font-size:10.5px;color:var(--ink3);text-align:right}
+.tog{width:34px;height:19px;border-radius:99px;background:var(--rule2);position:relative;transition:.16s;flex-shrink:0}
+.tog i{position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:99px;background:#fff;transition:.16s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.tog.on{background:var(--marine)} .tog.on i{left:17px}
+.arch{font-family:var(--cond);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:2px;background:var(--surface3);color:var(--ink2)}
+
+/* assemble */
+#asm{display:grid;grid-template-columns:216px 1fr 348px;height:100%;overflow:hidden}
+.col{overflow:auto;height:100%}
+.colL{border-right:1px solid var(--rule);background:var(--surface2)}
+.colR{border-left:1px solid var(--rule);background:var(--surface)}
+.colhd{padding:11px 14px;border-bottom:1px solid var(--rule);background:var(--surface);position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:8px}
+.sitem{display:flex;align-items:center;gap:9px;width:100%;padding:8px 14px;border-bottom:1px solid var(--rule);font-size:12px}
+.sitem:hover{background:var(--surface)}
+.sitem.on{background:var(--surface);box-shadow:inset 2px 0 0 var(--marine);font-weight:600}
+.sitem.off{opacity:.42}
+.sitem .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sitem .c{font-family:var(--mono);font-size:10px;color:var(--ink3)}
+
+/* pipeline */
+.pipe{padding:18px 20px}
+.lane{margin-bottom:16px}
+.lanehd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.lanehd .k{width:6px;height:6px;border-radius:1px}
+.nodes{display:flex;flex-wrap:wrap;align-items:stretch;gap:0}
+.node{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--surface);border:1px solid var(--rule2);border-radius:var(--r);min-width:174px;cursor:pointer;transition:.12s;position:relative}
+.node:hover{border-color:var(--ink3);box-shadow:0 3px 10px -6px rgba(0,0,0,.4)}
+.node.on{border-color:var(--marine);box-shadow:0 0 0 1px var(--marine)}
+.node .ic{width:26px;height:26px;border-radius:var(--r);display:grid;place-items:center;flex-shrink:0}
+.node .tx{min-width:0}
+.node .tx b{font-size:12px;font-weight:600;display:block;line-height:1.25}
+.node .tx span{font-family:var(--mono);font-size:9.5px;color:var(--ink3)}
+.node .x{position:absolute;top:-6px;right:-6px;width:17px;height:17px;border-radius:99px;background:var(--ink);color:#fff;display:none;place-items:center;font-size:11px;line-height:1}
+.node:hover .x{display:grid}
+.node.locked{background:var(--surface2);border-style:dashed;cursor:default}
+.node.locked:hover{border-color:var(--rule2);box-shadow:none}
+.cn{display:grid;place-items:center;padding:0 6px;color:var(--rule2)}
+.addb{display:flex;align-items:center;gap:7px;padding:9px 12px;border:1px dashed var(--rule2);border-radius:var(--r);color:var(--ink3);font-size:12px;min-width:120px;justify-content:center}
+.addb:hover{border-color:var(--marine);color:var(--marine);background:var(--marineLo)}
+
+.k-source{background:var(--slateLo);color:var(--slate)} .kb-source{background:var(--slate)}
+.k-transform{background:var(--marineLo);color:var(--marine)} .kb-transform{background:var(--marine)}
+.k-assist{background:var(--amberLo);color:var(--amber)} .kb-assist{background:var(--amber)}
+.k-sink{background:var(--plumLo);color:var(--plum)} .kb-sink{background:var(--plum)}
+.k-observer{background:var(--surface3);color:var(--ink2)} .kb-observer{background:var(--ink3)}
+.k-platform{background:var(--surface3);color:var(--ink)} .kb-platform{background:var(--ink)}
+
+/* inspector */
+.insp{padding:14px}
+.ihd{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+.ihd .ic{width:32px;height:32px;border-radius:var(--r);display:grid;place-items:center}
+.ihd h4{font-size:14px;font-weight:600}
+.ihd .id{font-family:var(--mono);font-size:10px;color:var(--ink3)}
+.iblurb{font-size:12px;color:var(--ink2);line-height:1.5;margin:9px 0 13px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:11.5px;font-weight:500;margin-bottom:4px}
+.fld .hlp{font-size:11px;color:var(--ink3);margin-top:3px;line-height:1.4}
+.fld input[type=text],.fld input[type=number],.fld select,.fld textarea{width:100%;padding:5px 8px;border:1px solid var(--rule2);border-radius:var(--r);background:var(--surface);font-size:12px;font-family:var(--mono)}
+.fld textarea{min-height:56px;resize:vertical;line-height:1.5}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--marine);outline:none;box-shadow:0 0 0 2px var(--marineLo)}
+.fld.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fld.row label{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.ch{padding:3px 9px;border:1px solid var(--rule2);border-radius:99px;font-size:11.5px;color:var(--ink2);background:var(--surface)}
+.ch.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.hint{margin-top:12px;padding:9px 11px;background:var(--marineLo);border-left:2px solid var(--marine);border-radius:0 var(--r) var(--r) 0;font-size:11.5px;color:var(--ink2);line-height:1.5}
+.hint b{color:var(--marine)}
+.hint.w{background:var(--amberLo);border-color:var(--amber)} .hint.w b{color:var(--amber)}
+
+/* palette */
+.pal{position:fixed;inset:0;background:rgba(24,26,25,.42);display:grid;place-items:center;z-index:60;padding:24px}
+.palbox{background:var(--paper);border-radius:6px;width:min(760px,100%);max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);overflow:hidden}
+.palhd{padding:14px 16px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:10px;background:var(--surface)}
+.palbody{overflow:auto;padding:14px 16px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(224px,1fr));gap:8px;margin-bottom:16px}
+.pitem{display:flex;gap:9px;padding:10px;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);cursor:pointer}
+.pitem:hover{border-color:var(--marine);background:var(--marineLo)}
+.pitem.dis{opacity:.4;cursor:not-allowed}
+.pitem .ic{width:26px;height:26px;border-radius:var(--r);display:grid;place-items:center;flex-shrink:0}
+.pitem b{font-size:12px;font-weight:600;display:block}
+.pitem span{font-size:11px;color:var(--ink3);line-height:1.4;display:block;margin-top:1px}
+
+/* review */
+pre{font-family:var(--mono);font-size:11px;line-height:1.65;padding:15px;background:var(--ink);color:#CFD3D0;border-radius:var(--r);overflow:auto;max-height:460px}
+pre .k{color:#7FC4AE}pre .v{color:#E3C88A}pre .c{color:#6B706D}pre .d{color:#C99BB4}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r)}
+.cardh{padding:10px 14px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:9px}
+.vres{display:flex;gap:9px;padding:8px 14px;border-bottom:1px solid var(--rule);font-size:12px;align-items:flex-start}
+.vres:last-child{border:0}
+.vres .g{color:var(--marine)}.vres .w{color:var(--amber)}.vres .e{color:var(--rust)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border:1px solid var(--rule2);border-radius:var(--r);background:var(--surface);font-size:12px;font-weight:500}
+.btn:hover{background:var(--surface2);border-color:var(--ink3)}
+.btn.pri{background:var(--marine);border-color:var(--marine);color:#fff}.btn.pri:hover{background:var(--marineHi)}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--ink);color:#fff;padding:9px 15px;border-radius:var(--r);font-size:12px;opacity:0;pointer-events:none;transition:.26s;z-index:80;display:flex;gap:9px;align-items:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{padding:44px 20px;text-align:center;color:var(--ink3)}
+.empty h4{font-size:13px;color:var(--ink2);margin-bottom:4px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(max-width:1080px){#asm{grid-template-columns:1fr}.colL,.colR{display:none}#meters{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <div class="bd"><b>Malkom 3.0</b><span>Process assembler</span></div>
+    <div id="steps"></div>
+    <div id="meters"></div>
+    <div class="rt">
+      <button class="tbtn" data-a="import">Load</button>
+      <button class="tbtn" data-a="export">Save</button>
+      <button class="tbtn go" data-a="next">Continue</button>
+    </div>
+  </div>
+  <div id="body"></div>
+</div>
+<div id="toast"><span id="tmsg"></span></div>
+
+<script>
+/* ═══════════════ ICONS ═══════════════ */
+const I=(p,sw)=>`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw||1.7}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICO={
+ mail:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="m2 7 10 6L22 7"/>',
+ folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M8 13h8"/>',
+ plug:'<path d="M9 2v6M15 2v6"/><path d="M6 8h12v4a6 6 0 0 1-12 0Z"/><path d="M12 18v4"/>',
+ edi:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h4M7 13h6M15 9v8"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ upload:'<path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+ tag:'<path d="M3 11V4a1 1 0 0 1 1-1h7l9 9-8 8Z"/><circle cx="7.5" cy="7.5" r="1.3"/>',
+ scan:'<path d="M4 8V5a1 1 0 0 1 1-1h3M20 8V5a1 1 0 0 0-1-1h-3M4 16v3a1 1 0 0 0 1 1h3M20 16v3a1 1 0 0 1-1 1h-3"/><path d="M4 12h16"/>',
+ table:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/>',
+ brain:'<path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 3 3 3 3 0 0 0 3-2V6a3 3 0 0 0-3-2Z"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-3 3 3 3 0 0 1-3-2"/>',
+ msg:'<path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 16 0Z"/><path d="M8 11h8M8 15h5"/>',
+ link:'<path d="M10 14a4 4 0 0 0 6 .5l2-2a4 4 0 0 0-6-6l-1 1"/><path d="M14 10a4 4 0 0 0-6-.5l-2 2a4 4 0 0 0 6 6l1-1"/>',
+ plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+ rules:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="m8 12 3 3 5-6"/>',
+ code:'<path d="m9 8-5 4 5 4M15 8l5 4-5 4"/>',
+ form:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/>',
+ book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2Z"/><path d="M8 7h7"/>',
+ spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="m12 8 1.4 2.6L16 12l-2.6 1.4L12 16l-1.4-2.6L8 12l2.6-1.4Z"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.3 2.4c-.5.2-.8.7-.8 1.2v.4"/><path d="M12 17h.01"/>',
+ alert:'<path d="M10.3 4.3 2.6 18a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+ out:'<path d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><path d="M14 4h6v6M20 4l-9 9"/>',
+ soap:'<path d="M4 7h16M4 12h16M4 17h10"/><circle cx="18" cy="17" r="2"/>',
+ db:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+ bot:'<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 4v4"/><circle cx="9" cy="14" r="1.2"/><circle cx="15" cy="14" r="1.2"/>',
+ bell:'<path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7Z"/><path d="M10.5 20a1.8 1.8 0 0 0 3 0"/>',
+ shield:'<path d="M12 3 5 6v6c0 4.5 3 7.7 7 9 4-1.3 7-4.5 7-9V6Z"/><path d="m9 12 2 2 4-4"/>',
+ chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ meter:'<circle cx="12" cy="12" r="9"/><path d="M12 12 8 8"/><path d="M12 3v2M21 12h-2M12 21v-2M3 12h2"/>',
+ lock:'<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+ key:'<circle cx="7.5" cy="15" r="3.5"/><path d="m10 12.5 9-9M17 6l2 2M14 9l2 2"/>',
+ pulse:'<path d="M2 12h4l3-8 4 16 3-8h6"/>',
+ arch:'<path d="M4 20V9l8-6 8 6v11"/><path d="M9 20v-6h6v6"/>',
+ plane:'<path d="M17.8 19.8 16 14l4-4a2 2 0 0 0-2.8-2.8l-4 4-5.8-1.8a1 1 0 0 0-1 .3l-1 1 5 3-3 3H4l-1 1 4 1 1 4 1-1v-3.5l3-3 3 5 1-1a1 1 0 0 0 .3-1Z"/>',
+ ship:'<path d="M3 17c1.5 0 2-1.5 4.5-1.5S10.5 17 12 17s2-1.5 4.5-1.5S19.5 17 21 17"/><path d="M4 13V8h16v5"/><path d="M12 3v5"/><path d="m4 13 1 5M20 13l-1 5"/>',
+ truck:'<path d="M2 6h11v11H2Z"/><path d="M13 9h4l4 4v4h-8Z"/><circle cx="7" cy="19" r="2"/><circle cx="17" cy="19" r="2"/>',
+ stack:'<path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 13 9 5 9-5"/>'
+};
+const ic=k=>I(ICO[k]||ICO.stack);
+
+/* ═══════════════ SERVICE CATALOGUE ═══════════════ */
+const opt=(...a)=>a;
+const CAT={
+/* SOURCES */
+'src.mailbox':{n:'Email management',k:'source',i:'mail',b:'Fetch, thread, dedupe, split attachments and identify the party before a task exists. The busiest door in most engagements.',cfg:[
+ {k:'provider',l:'Mail provider',t:'select',o:opt('Microsoft Graph','IMAP','Gmail API'),d:'Microsoft Graph'},
+ {k:'folders',l:'Folders watched',t:'text',d:'Docs Inbox, Customer Docs',h:'Comma separated. Each folder can map to a different process.'},
+ {k:'allow',l:'Sender allowlist',t:'text',d:'*@client.com, *@carrier.com'},
+ {k:'grain',l:'Task granularity',t:'select',o:opt('One task per email','One task per attachment','One task per thread'),d:'One task per attachment',h:'Attachment-level is right when a single mail carries several B/Ls.'},
+ {k:'reply',l:'Attach replies to open task',t:'tog',d:true},
+ {k:'ack',l:'Auto-acknowledge on receipt',t:'tog',d:true},
+ {k:'ackT',l:'Acknowledgement template',t:'text',d:'ack_received_v3',if:s=>s.ack},
+ {k:'ai',l:'Read intent with AI',t:'tog',d:true,h:'Turns free-text mail into a routable intent.'},
+ {k:'intents',l:'Intent set',t:'chips',o:opt('new booking','amendment','document submission','status chase','rate request','dispute','cancellation'),d:['new booking','amendment','document submission','status chase'],if:s=>s.ai},
+ {k:'lang',l:'Detect language',t:'tog',d:true,if:s=>s.ai},
+ {k:'quar',l:'Quarantine unmatched senders',t:'tog',d:true},
+ {k:'poll',l:'Poll interval (s)',t:'num',d:60}]},
+'src.sftp':{n:'SFTP drop',k:'source',i:'folder',b:'Watch a directory for files the client or carrier drops on a schedule.',cfg:[
+ {k:'host',l:'Connection',t:'select',o:opt('client-sftp-prod','carrier-edi-sftp'),d:'client-sftp-prod'},
+ {k:'path',l:'Watch path',t:'text',d:'/in/bl'},
+ {k:'pat',l:'Filename pattern',t:'text',d:'*.pdf'},
+ {k:'poll',l:'Poll interval (s)',t:'num',d:60},
+ {k:'dedupe',l:'Dedupe by content hash',t:'tog',d:true},
+ {k:'pgp',l:'PGP decrypt on arrival',t:'tog',d:false},
+ {k:'arch',l:'After pickup',t:'select',o:opt('Move to /archive','Delete','Leave in place'),d:'Move to /archive'}]},
+'src.api':{n:'Inbound API',k:'source',i:'plug',b:'For clients able to push to us. The cleanest source when it exists.',cfg:[
+ {k:'route',l:'Route',t:'text',d:'/v1/ssl-01/bookings'},
+ {k:'auth',l:'Authentication',t:'select',o:opt('mTLS','OAuth2 client credentials','HMAC signature','API key'),d:'mTLS'},
+ {k:'schema',l:'Payload schema',t:'select',o:opt('schemas/booking@2','schemas/bill-of-lading@3','schemas/quote-request@1'),d:'schemas/booking@2'},
+ {k:'rate',l:'Rate limit (req/min)',t:'num',d:600}]},
+'src.edi':{n:'EDI receiver',k:'source',i:'edi',b:'Structured carrier and partner messaging.',cfg:[
+ {k:'sets',l:'Transaction sets',t:'chips',o:opt('300','301','315','323','214','204','990','110','IFTMIN','IFTSTA','COPARN'),d:['315','214']},
+ {k:'partner',l:'Partner ID',t:'text',d:'ZZ:MALKOMSSL01'},
+ {k:'ack',l:'Send 997 / CONTRL acknowledgement',t:'tog',d:true}]},
+'src.portalPoll':{n:'Portal polling',k:'source',i:'globe',b:'Scrape a carrier, port or customs portal that offers no feed.',cfg:[
+ {k:'target',l:'Target',t:'select',o:opt('Carrier tracking portal','Terminal / port community','Customs status portal'),d:'Carrier tracking portal'},
+ {k:'cad',l:'Cadence',t:'select',o:opt('Every 15 min','Hourly','Every 4 hours','Daily'),d:'Hourly'},
+ {k:'drift',l:'Alarm on layout change',t:'tog',d:true,h:'Portals change without notice. This catches it before accuracy drops.'}]},
+'src.expectation':{n:'Expectation monitor',k:'source',i:'clock',b:'Creates work from absence — chases the document that never arrived.',cfg:[
+ {k:'exp',l:'Expect',t:'select',o:opt('One B/L per booking','One invoice per shipment','POD per delivery','SI per booking'),d:'One B/L per booking'},
+ {k:'after',l:'Chase after (hours)',t:'num',d:24},
+ {k:'esc',l:'Escalation ladder (hours)',t:'text',d:'48, 72'},
+ {k:'tmpl',l:'Chase template',t:'text',d:'chase_bl_v2'}]},
+/* TRANSFORMS */
+'idp.classify':{n:'Document classification',k:'transform',i:'tag',b:'Decide what the document is before spending money extracting it.',cfg:[
+ {k:'pack',l:'Taxonomy pack',t:'select',o:opt('packs/ocean-docs@4','packs/air-docs@3','packs/road-docs@2'),d:'packs/ocean-docs@4'},
+ {k:'floor',l:'Confidence floor',t:'num',d:0.90,h:'Below this the document is routed to human triage instead.'}]},
+'idp.extract':{n:'Field extraction',k:'transform',i:'scan',b:'Pull the field set the schema declares, each with a confidence and a provenance box.',cfg:[
+ {k:'schema',l:'Field schema',t:'select',o:opt('schemas/bill-of-lading@3','schemas/air-waybill@2','schemas/booking@2','schemas/commercial-invoice@4','schemas/road-bol@1'),d:'schemas/bill-of-lading@3'},
+ {k:'model',l:'Model',t:'select',o:opt('layout-v4','layout-v3','handwriting-v2'),d:'layout-v4'},
+ {k:'auto',l:'Auto-post threshold',t:'num',d:0.94,h:'At or above this, no human sees the task.'},
+ {k:'rev',l:'Review threshold',t:'num',d:0.70},
+ {k:'pages',l:'Max pages',t:'num',d:40},
+ {k:'tables',l:'Extract line-item tables',t:'tog',d:false}]},
+'idp.table':{n:'Table extraction',k:'transform',i:'table',b:'Line items, rate grids and manifests that run across pages.',cfg:[
+ {k:'schema',l:'Row schema',t:'select',o:opt('schemas/rate-line@2','schemas/cargo-line@1','schemas/charge-line@3'),d:'schemas/cargo-line@1'},
+ {k:'hdr',l:'Header strategy',t:'select',o:opt('Repeat per page','First page only','Detect per page'),d:'Detect per page'},
+ {k:'join',l:'Join rows split across pages',t:'tog',d:true}]},
+'ai.intent':{n:'Intent detection',k:'transform',i:'msg',b:'Classify what an unstructured request is actually asking for.',cfg:[
+ {k:'set',l:'Intent set',t:'chips',o:opt('quote','book','amend','cancel','status','document','dispute','claim'),d:['quote','book','amend','status']},
+ {k:'model',l:'Model',t:'select',o:opt('small-fast','balanced','deep'),d:'balanced'},
+ {k:'floor',l:'Escalate below confidence',t:'num',d:0.75}]},
+'ai.complete':{n:'AI reasoning',k:'transform',i:'brain',b:'Prompt-pack driven generation with guardrails, grounding and a fallback chain.',cfg:[
+ {k:'pack',l:'Prompt pack',t:'select',o:opt('packs/bl-normalise@3','packs/charge-explain@2','packs/reply-draft@5'),d:'packs/bl-normalise@3'},
+ {k:'model',l:'Primary model',t:'select',o:opt('small-fast','balanced','deep'),d:'balanced'},
+ {k:'fb',l:'Fallback on failure',t:'select',o:opt('small-fast','balanced','none — raise exception'),d:'small-fast'},
+ {k:'pii',l:'Redact PII before the call',t:'tog',d:true,h:'Non-negotiable in most client contracts.'},
+ {k:'ground',l:'Require grounded citation',t:'tog',d:true},
+ {k:'out',l:'Constrain to output schema',t:'tog',d:true}]},
+'data.resolve':{n:'Master data resolution',k:'transform',i:'link',b:'Match extracted text to the client\'s own vessels, ports, customers and commodities.',cfg:[
+ {k:'src',l:'Master sources',t:'chips',o:opt('vessels','ports','customers','commodities','carriers','tariffs','equipment'),d:['vessels','ports','customers']},
+ {k:'strat',l:'Match strategy',t:'select',o:opt('Exact then fuzzy','Exact only','Fuzzy with review'),d:'Exact then fuzzy'},
+ {k:'tol',l:'Fuzzy tolerance',t:'num',d:0.86},
+ {k:'fresh',l:'Max master age (hours)',t:'num',d:24,h:'Masters are a subscribed feed, not a one-time import.'},
+ {k:'miss',l:'On no match',t:'select',o:opt('Raise exception','Send to human review','Continue with raw value'),d:'Raise exception'}]},
+'data.enrich':{n:'Derive & convert',k:'transform',i:'plus',b:'Units, code mappings and derived values. No external calls.',cfg:[
+ {k:'rules',l:'Derivations',t:'area',d:'chargeableWeight = max(gross, volume * 167)\ngrossKg = convert(gross, kg)'},
+ {k:'uom',l:'Normalise units',t:'tog',d:true}]},
+'rules.evaluate':{n:'Validation rules',k:'transform',i:'rules',b:'Decision tables compiled to native predicates at publish. Single-digit milliseconds.',cfg:[
+ {k:'pack',l:'Rule pack',t:'select',o:opt('rules/bl-validation@6','rules/awb-validation@4','rules/booking-checks@2','rules/invoice-audit@7'),d:'rules/bl-validation@6'},
+ {k:'fail',l:'On failure',t:'select',o:opt('Send to human review','Raise exception','Warn and continue'),d:'Send to human review'}]},
+'code.custom':{n:'Custom code block',k:'transform',i:'code',b:'The escape hatch. TypeScript in an isolate, versioned and tested like everything else.',cfg:[
+ {k:'ref',l:'Code reference',t:'text',d:'code/charge-rounding@2'},
+ {k:'ms',l:'Time limit (ms)',t:'num',d:50},
+ {k:'mem',l:'Memory limit (MB)',t:'num',d:64}]},
+/* ASSIST */
+'form.setup':{n:'Review form (HITL)',k:'assist',i:'form',b:'The agent workbench. Generated from the field schema, so a new document type has a form the same day.',cfg:[
+ {k:'gen',l:'Form source',t:'select',o:opt('Generated from schema','Generated + layout override','Fully custom layout'),d:'Generated from schema'},
+ {k:'layout',l:'Layout override ref',t:'text',d:'overrides/bl-review@2',if:s=>s.gen!=='Generated from schema'},
+ {k:'split',l:'Show source document beside fields',t:'tog',d:true},
+ {k:'sop',l:'Inline SOP guidance',t:'tog',d:true},
+ {k:'kb',l:'Keyboard-first navigation',t:'tog',d:true},
+ {k:'mc',l:'Maker–checker',t:'select',o:opt('Off','Value-tiered','Always'),d:'Value-tiered'},
+ {k:'mcv',l:'Second review above value',t:'num',d:50000,if:s=>s.mc==='Value-tiered'},
+ {k:'sla',l:'Review SLA',t:'select',o:opt('1h business','2h business','4h business','8h business','24h business'),d:'4h business'},
+ {k:'skill',l:'Route to skill',t:'text',d:'ocean-certified'},
+ {k:'shift',l:'Follow-the-sun',t:'tog',d:true}]},
+'sop.assist':{n:'SOP assistance',k:'assist',i:'book',b:'Retrieves the right client-specific clause for the task in hand. Where answered queries become permanent knowledge.',cfg:[
+ {k:'corpus',l:'SOP corpus',t:'select',o:opt('sop/ssl-01@live','sop/ltl-04@live','sop/shared-ocean@live'),d:'sop/ssl-01@live'},
+ {k:'mode',l:'Surface as',t:'select',o:opt('Inline beside field','Panel on request','Both'),d:'Inline beside field'},
+ {k:'cite',l:'Require clause citation',t:'tog',d:true},
+ {k:'learn',l:'Fold answered queries back into corpus',t:'tog',d:true,h:'This is what stops the same question being asked twice.'}]},
+'assist.suggest':{n:'Value suggestions',k:'assist',i:'spark',b:'Proposes a value with its reason. Accept and reject rates feed the correction loop.',cfg:[
+ {k:'fields',l:'Suggest on',t:'select',o:opt('Low-confidence fields only','All fields','Rule-failing fields only'),d:'Low-confidence fields only'},
+ {k:'show',l:'Show above confidence',t:'num',d:0.55}]},
+'query.manage':{n:'Client query desk',k:'assist',i:'help',b:'Turns "waiting on the client" into a tracked object with its own clock — usually the largest silent cost in delivery.',cfg:[
+ {k:'ch',l:'Channel',t:'select',o:opt('Email','Client portal','Both'),d:'Both'},
+ {k:'pause',l:'Pause task SLA while open',t:'tog',d:true,h:'Makes SLA attainment defensible in a dispute.'},
+ {k:'esc',l:'Escalate after (hours)',t:'num',d:24},
+ {k:'tmpl',l:'Template set',t:'text',d:'queries/ocean@3'}]},
+'exception.manage':{n:'Exception desk',k:'assist',i:'alert',b:'Typed, aged and owned. Never an inbox.',cfg:[
+ {k:'tax',l:'Taxonomy',t:'select',o:opt('taxonomy/ocean@2','taxonomy/air@2','taxonomy/road@1'),d:'taxonomy/ocean@2'},
+ {k:'own',l:'Default owner',t:'select',o:opt('Process lead','Originating agent','Client success'),d:'Process lead'},
+ {k:'age',l:'Age alarm (hours)',t:'num',d:8}]},
+/* SINKS */
+'out.rest':{n:'REST write-back',k:'sink',i:'out',b:'The preferred exit. Idempotent, verified by read-back, compensable.',cfg:[
+ {k:'conn',l:'Connection',t:'select',o:opt('ssl-01/cargowise','ssl-01/sap','ltl-04/mercurygate','fwd-11/descartes'),d:'ssl-01/cargowise'},
+ {k:'op',l:'Operation',t:'text',d:'POST /shipments/{ref}/documents'},
+ {k:'idem',l:'Idempotency key',t:'select',o:opt('task.id','client ref + doc type','content hash'),d:'task.id'},
+ {k:'verify',l:'Verify by read-back',t:'tog',d:true,h:'A write you cannot prove is a write you did not make.'},
+ {k:'retry',l:'Retry attempts',t:'num',d:5},
+ {k:'fb',l:'On exhausted retries',t:'select',o:opt('Fall back to RPA','Raise exception','Queue for manual'),d:'Raise exception'}]},
+'out.rpa':{n:'RPA write-back',k:'sink',i:'bot',b:'For client systems with no API. Warm session pool, because a cold browser costs 3–15 seconds.',cfg:[
+ {k:'script',l:'Script reference',t:'text',d:'rpa/portal-bl-entry@5'},
+ {k:'pool',l:'Warm sessions',t:'num',d:4,h:'Pre-authenticated browsers. The single largest real latency source if omitted.'},
+ {k:'verify',l:'Verification',t:'select',o:opt('Screenshot + read-back','Read-back only','Screenshot only'),d:'Screenshot + read-back'},
+ {k:'drift',l:'Selector drift detection',t:'tog',d:true},
+ {k:'rec',l:'Record session for audit',t:'tog',d:true}]},
+'out.edi':{n:'EDI send',k:'sink',i:'edi',b:'Structured messaging back to carrier or partner.',cfg:[
+ {k:'set',l:'Transaction set',t:'select',o:opt('310','315','214','204','990','IFTMIN','IFTSTA'),d:'315'},
+ {k:'partner',l:'Partner ID',t:'text',d:'ZZ:CARRIER01'},
+ {k:'ack',l:'Expect acknowledgement',t:'tog',d:true}]},
+'out.db':{n:'Database write',k:'sink',i:'db',b:'Direct write where the client has given us a staging schema.',cfg:[
+ {k:'conn',l:'Connection',t:'select',o:opt('ssl-01/staging','ltl-04/ods'),d:'ssl-01/staging'},
+ {k:'tbl',l:'Target table',t:'text',d:'stg_bill_of_lading'},
+ {k:'key',l:'Upsert key',t:'text',d:'bl_number'}]},
+'out.sftp':{n:'SFTP delivery',k:'sink',i:'folder',b:'File hand-off on the client\'s schedule.',cfg:[
+ {k:'conn',l:'Connection',t:'select',o:opt('client-sftp-prod','partner-sftp'),d:'client-sftp-prod'},
+ {k:'path',l:'Destination path',t:'text',d:'/out/processed'},
+ {k:'fmt',l:'Format',t:'select',o:opt('CSV','Fixed width','JSON','XML'),d:'CSV'},
+ {k:'sum',l:'Write checksum file',t:'tog',d:true}]},
+'out.mail':{n:'Email out',k:'sink',i:'mail',b:'Replies, confirmations and document delivery.',cfg:[
+ {k:'tmpl',l:'Template',t:'text',d:'templates/doc-confirmation@2'},
+ {k:'to',l:'Recipients',t:'select',o:opt('Reply to sender','Fixed distribution','From task refs'),d:'Reply to sender'},
+ {k:'att',l:'Attach processed document',t:'tog',d:true}]},
+'out.notify':{n:'Notification',k:'sink',i:'bell',b:'Alerts to client or internal channels.',cfg:[
+ {k:'ch',l:'Channel',t:'select',o:opt('Client portal','Teams','Slack','SMS'),d:'Client portal'},
+ {k:'thr',l:'Throttle (per hour)',t:'num',d:20}]},
+/* OBSERVERS */
+'qa.sample':{n:'Quality sampling',k:'observer',i:'shield',b:'Risk-weighted review after the fact. Subscribes to the event log, so it never touches the pipeline.',cfg:[
+ {k:'rate',l:'Base sampling rate (%)',t:'num',d:5},
+ {k:'risk',l:'Risk weighting',t:'select',o:opt('By value','By new agent','By value and new agent','Flat'),d:'By value and new agent'},
+ {k:'newr',l:'New-agent rate (%)',t:'num',d:100,if:s=>s.risk!=='Flat'},
+ {k:'tax',l:'Error taxonomy',t:'select',o:opt('taxonomy/errors-ocean@3','taxonomy/errors-air@2','taxonomy/errors-road@1'),d:'taxonomy/errors-ocean@3'},
+ {k:'cal',l:'Calibration cadence',t:'select',o:opt('Weekly','Fortnightly','Monthly'),d:'Weekly'},
+ {k:'score',l:'Publish agent scorecards',t:'tog',d:true}]},
+'qa.drift':{n:'Accuracy drift watch',k:'observer',i:'pulse',b:'Watches confidence distributions and correction rates. Catches a client changing their template before anyone notices.',cfg:[
+ {k:'win',l:'Comparison window (days)',t:'num',d:7},
+ {k:'thr',l:'Alarm on shift (%)',t:'num',d:8},
+ {k:'auto',l:'Auto-lower auto-post threshold on drift',t:'tog',d:true}]},
+'qa.shadow':{n:'Shadow run',k:'observer',i:'stack',b:'Runs the next plan version silently beside the live one and reports divergence.',cfg:[
+ {k:'ver',l:'Shadow version',t:'text',d:'ocean-bl@8'},
+ {k:'pct',l:'Traffic shadowed (%)',t:'num',d:100},
+ {k:'gate',l:'Promote at divergence below (%)',t:'num',d:1}]},
+'analytics.project':{n:'Analytics & client portal',k:'observer',i:'chart',b:'Read models for dashboards, SLA attainment, backlog and the auto-built QBR pack.',cfg:[
+ {k:'views',l:'Published views',t:'chips',o:opt('SLA attainment','Volume & backlog','Pending with client','Exception ageing','Automation rate','Quality scores'),d:['SLA attainment','Volume & backlog','Pending with client']},
+ {k:'portal',l:'Expose client portal',t:'tog',d:true},
+ {k:'qbr',l:'Auto-generate QBR pack',t:'tog',d:true}]},
+'meter.bill':{n:'Metering & billing',k:'observer',i:'meter',b:'Billable units derived from completion events. The invoice is a derivation, never a data-entry exercise.',cfg:[
+ {k:'unit',l:'Billable unit',t:'select',o:opt('Per document','Per field set','Per shipment','Per FTE hour','Per transaction'),d:'Per document'},
+ {k:'model',l:'Pricing model',t:'select',o:opt('Per transaction','Per FTE','Hybrid','Outcome / gain-share'),d:'Per transaction'},
+ {k:'stp',l:'Bill straight-through at reduced rate',t:'tog',d:true,h:'Decide this before automation succeeds, not after.'},
+ {k:'cycle',l:'Billing cycle',t:'select',o:opt('Monthly','Fortnightly','Weekly'),d:'Monthly'}]},
+/* PLATFORM — auto attached */
+'k.identity':{n:'Auth & RBAC',k:'platform',i:'key',b:'Central identity, per-environment authorization, capability-scoped secret leasing.',cfg:[
+ {k:'idp',l:'Identity provider',t:'select',o:opt('Malkom central OIDC','Client Entra ID','Both federated'),d:'Malkom central OIDC'},
+ {k:'mfa',l:'Require MFA',t:'tog',d:true},
+ {k:'roles',l:'Roles',t:'chips',o:opt('agent','reviewer','process lead','QA','client read-only','admin'),d:['agent','reviewer','process lead','QA']},
+ {k:'vault',l:'Secret lease TTL (min)',t:'num',d:15}]},
+'k.monitor':{n:'Monitoring & alerts',k:'platform',i:'pulse',b:'Per-step latency, budget enforcement, connector health and the telemetry allowlist.',cfg:[
+ {k:'budget',l:'Enforce step budgets',t:'tog',d:true},
+ {k:'reg',l:'Block publish on p95 regression above (%)',t:'num',d:20},
+ {k:'alerts',l:'Alert on',t:'chips',o:opt('SLA breach risk','Connector down','Drift detected','Backlog growth','Failed egress','Budget exceeded'),d:['SLA breach risk','Connector down','Failed egress']},
+ {k:'route',l:'Alert routing',t:'select',o:opt('Ops channel','On-call rota','Process lead'),d:'On-call rota'}]},
+'k.audit':{n:'Audit trail',k:'platform',i:'lock',b:'Immutable event log, session recording on client systems, evidence export.',cfg:[
+ {k:'ret',l:'Retention (months)',t:'num',d:84},
+ {k:'rec',l:'Record client-system sessions',t:'tog',d:true},
+ {k:'hold',l:'Legal hold supported',t:'tog',d:true},
+ {k:'res',l:'Data residency',t:'select',o:opt('In client region','India','EU','Client VPC (BYOC)'),d:'In client region'}]},
+'data.docstore':{n:'Document repository',k:'platform',i:'db',b:'Write-once originals with retention, encryption and legal hold.',cfg:[
+ {k:'ret',l:'Retention (years)',t:'num',d:7},
+ {k:'enc',l:'Encryption',t:'select',o:opt('Platform managed','Client managed key (BYOK)'),d:'Platform managed'},
+ {k:'ver',l:'Keep every version',t:'tog',d:true}]},
+'data.masters':{n:'Master data feed',k:'platform',i:'stack',b:'Client masters as a subscribed feed with a freshness SLA — not a one-time import.',cfg:[
+ {k:'src',l:'Feeds',t:'chips',o:opt('vessels','ports','customers','carriers','commodities','tariffs','equipment','agents'),d:['vessels','ports','customers']},
+ {k:'mode',l:'Delivery',t:'select',o:opt('Client API pull','SFTP daily','EDI','Manual upload'),d:'Client API pull'},
+ {k:'fresh',l:'Freshness SLA (hours)',t:'num',d:24},
+ {k:'stale',l:'When stale',t:'select',o:opt('Warn and continue','Halt auto-post','Raise exception'),d:'Warn and continue'}]}
+};
+const KINDS=['source','transform','assist','sink','observer'];
+const KN={source:'Intake',transform:'Understand & decide',assist:'Human in the loop',sink:'Output',observer:'Observers',platform:'Platform'};
+
+/* ═══════════════ VERTICALS ═══════════════ */
+const A_DOC=['src.mailbox','idp.classify','idp.extract','data.resolve','rules.evaluate','form.setup','sop.assist','out.rest'];
+const A_REQ=['src.mailbox','ai.intent','idp.extract','data.resolve','rules.evaluate','form.setup','out.rest'];
+const A_MON=['src.portalPoll','data.enrich','rules.evaluate','out.db'];
+const A_REC=['src.sftp','idp.table','data.resolve','rules.evaluate','form.setup','out.db'];
+const A_MSG=['src.edi','data.resolve','rules.evaluate','out.edi'];
+
+const VERT={
+ air:{n:'Air freight',cd:'AIR',i:'plane',p:'Airline, GSA or air forwarder. MAWB and HAWB, capacity booking, CASS settlement.',vol:'1.2k docs/day',proc:'13 stages',
+  st:[['rfq','Rate & quote desk','per quote',A_REQ],['book','Booking & capacity','per booking',A_REQ],
+      ['awb','AWB issuance — MAWB / HAWB','per AWB',A_DOC],['docs','Export documentation','per doc',A_DOC],
+      ['dgr','DG & security declarations','per declaration',A_DOC],['cusx','Export customs filing','per entry',A_DOC],
+      ['fwb','Manifest & FWB / FHL messaging','per message',A_MSG],['trk','Flight tracking & milestones','per shipment/day',A_MON],
+      ['arr','Arrival notice','per notice',A_DOC],['cusi','Import customs','per entry',A_DOC],
+      ['dlv','Delivery order & POD','per delivery',A_DOC],['bill','Rate audit & invoicing','per invoice',A_REC],
+      ['cass','CASS / interline settlement','per settlement',A_REC]]},
+ ssl:{n:'Ocean — carrier (SSL)',cd:'SSL',i:'ship',p:'Steamship line. Issues the master B/L, files the manifest, owns the equipment.',vol:'2.9k docs/day',proc:'14 stages',
+  st:[['tar','Tariff & rate maintenance','per rate line',A_REC],['book','Booking desk','per booking',A_REQ],
+      ['emp','Empty container release','per release',A_MSG],['si','Shipping instructions','per SI',A_DOC],
+      ['vgm','VGM capture','per container',A_DOC],['bl','B/L draft, approval & issuance','per B/L',A_DOC],
+      ['man','Customs manifest — AMS / ISF / ENS','per filing',A_MSG],['sch','Vessel schedule & ETA','per vessel/day',A_MON],
+      ['trk','Container milestones','per container/day',A_MON],['arr','Arrival notice','per notice',A_DOC],
+      ['do','Delivery order & release','per release',A_DOC],['dnd','Demurrage & detention','per container',A_REC],
+      ['inv','Invoicing & collection','per invoice',A_REC],['dis','Disputes & credit notes','per dispute',A_REQ]]},
+ nvo:{n:'Ocean — NVOCC / forwarder',cd:'NVO / FF',i:'stack',p:'Issues the house B/L, receives the master. Every shipment runs on two tracks that must reconcile.',vol:'1.6k docs/day',proc:'17 stages',
+  st:[['quo','Quote & RFQ','per quote',A_REQ],['bks','Shipper booking — house','per booking',A_REQ],
+      ['bkc','Carrier booking — master','per booking',A_MSG],['con','Consolidation & CFS','per consol',A_DOC],
+      ['sic','SI to carrier','per SI',A_MSG],['hbl','HBL issuance','per HBL',A_DOC],
+      ['mbl','MBL receipt & check','per MBL',A_DOC],['rec','HBL / MBL reconciliation','per shipment',A_REC],
+      ['man','House & master manifest','per filing',A_MSG],['cusx','Export customs','per entry',A_DOC],
+      ['agt','Agent nomination & pre-alert','per shipment',A_DOC],['dec','De-consolidation at destination','per consol',A_DOC],
+      ['cusi','Import customs','per entry',A_DOC],['dlv','Delivery & POD','per delivery',A_DOC],
+      ['invh','House invoicing','per invoice',A_REC],['cstm','Master cost booking','per cost',A_REC],
+      ['set','Agent profit share settlement','per settlement',A_REC]]},
+ road:{n:'Trucking — LTL & FTL',cd:'ROAD',i:'truck',p:'Carrier or broker. Rating, dispatch, POD imaging and the freight bill audit that pays for itself.',vol:'4.1k docs/day',proc:'11 stages',
+  st:[['rate','Rating & quote','per quote',A_REQ],['ten','Load tender / booking','per load',A_MSG],
+      ['dis','Pickup scheduling & dispatch','per pickup',A_REQ],['bol','BOL creation','per BOL',A_DOC],
+      ['lin','Linehaul & manifest','per manifest',A_MSG],['dock','Terminal & cross-dock','per handling',A_MON],
+      ['app','Delivery appointment','per appointment',A_REQ],['pod','POD capture & imaging','per POD',A_DOC],
+      ['aud','Freight bill audit','per invoice',A_REC],['clm','Claims handling','per claim',A_DOC],
+      ['set','Carrier settlement','per settlement',A_REC]]}
+};
+const PLATFORM=['k.identity','k.monitor','k.audit','data.docstore','data.masters'];
+const DEF_OBS=['qa.sample','analytics.project','meter.bill'];
+
+/* ═══════════════ STATE ═══════════════ */
+let S={step:0,vert:null,on:{},pipe:{},cfg:{},plat:{},obs:{},stage:null,sel:null,pal:false,palKind:null};
+const STEPS=['Business','Scope','Assemble','Platform','Review'];
+
+function loadVert(v){
+  S.vert=v;S.on={};S.pipe={};S.cfg={};S.obs={};S.plat={};
+  VERT[v].st.forEach(([id,,,def],i)=>{
+    S.on[id]= i<6;                       // sensible starting scope
+    S.pipe[id]=def.slice();
+    def.forEach(s=>ensureCfg(id,s));
+  });
+  DEF_OBS.forEach(s=>{S.obs[s]=true;ensureCfg('_obs',s)});
+  PLATFORM.forEach(s=>ensureCfg('_plat',s));
+  S.stage=VERT[v].st[0][0];S.sel=null;
+}
+function ensureCfg(stage,svc){
+  const key=stage+'::'+svc;
+  if(S.cfg[key])return;
+  const o={};(CAT[svc].cfg||[]).forEach(f=>o[f.k]=f.d);
+  S.cfg[key]=o;
+}
+const cfgOf=(stage,svc)=>S.cfg[stage+'::'+svc]||{};
+
+/* ═══════════════ METRICS ═══════════════ */
+function metrics(){
+  const stages=Object.keys(S.on).filter(k=>S.on[k]);
+  let svc=0,custom=0,rpa=0,ai=0;
+  stages.forEach(st=>(S.pipe[st]||[]).forEach(s=>{svc++;
+    if(s==='code.custom')custom++; if(s==='out.rpa')rpa++;
+    if(s.startsWith('ai.')||s.startsWith('idp.'))ai++;}));
+  const obs=Object.keys(S.obs).filter(k=>S.obs[k]).length;
+  const total=svc+obs+PLATFORM.length;
+  // boundaries: idp + rpa calls are the real network crossings
+  const bound=stages.length? Math.max(1,Math.round((ai+rpa)/Math.max(1,stages.length))+1):0;
+  // setup estimate: config is fast, custom code and RPA are not
+  const days = stages.length? Math.ceil(1.5 + stages.length*0.35 + custom*2 + rpa*1.5) : 0;
+  const p95 = (1.2 + ai*0.35 + rpa*0.4).toFixed(1);
+  return {stages:stages.length,total,bound,days,p95,custom};
+}
+function drawMeters(){
+  if(!S.vert){document.getElementById('meters').innerHTML='';return}
+  const m=metrics();
+  document.getElementById('meters').innerHTML=`
+   <div class="mtr"><div class="v">${m.stages}</div><div class="k">Stages</div></div>
+   <div class="mtr"><div class="v">${m.total}</div><div class="k">Services</div></div>
+   <div class="mtr"><div class="v">${m.bound}</div><div class="k">Boundaries</div></div>
+   <div class="mtr"><div class="v">${m.p95}s</div><div class="k">Arrival p95</div></div>
+   <div class="mtr hero"><div class="v">${m.days}d</div><div class="k">Est. to live</div></div>`;
+}
+
+/* ═══════════════ RENDER ═══════════════ */
+function drawSteps(){
+  document.getElementById('steps').innerHTML=STEPS.map((s,i)=>
+    `<button class="stp ${S.step===i?'on':''} ${S.step>i?'done':''}" data-step="${i}"><b>${S.step>i?'✓':i+1}</b>${s}</button>`).join('');
+}
+function render(){
+  drawSteps();drawMeters();
+  const b=document.getElementById('body');
+  b.innerHTML=[v0,v1,v2,v3,v4][S.step]();
+}
+
+/* step 0 — business */
+function v0(){
+  return `<div class="scroll" style="flex:1"><div class="wrap">
+   <h3 class="sec">What does this client do?</h3>
+   <p class="sub">The business model decides the process cycle, the document taxonomy and which reference numbers matter. Everything downstream inherits from this choice.</p>
+   <div class="vgrid">${Object.entries(VERT).map(([k,v])=>`
+     <div class="vcard ${S.vert===k?'on':''}" data-vert="${k}">
+       <div class="ico">${ic(v.i)}</div>
+       <div class="cd">${v.cd}</div>
+       <h4>${v.n}</h4>
+       <p>${v.p}</p>
+       <div class="st"><div><b>${v.proc.split(' ')[0]}</b> stages</div><div><b>${v.vol.split(' ')[0]}</b> docs/day</div></div>
+     </div>`).join('')}</div>
+   ${S.vert?`<div class="hint" style="margin-top:18px"><b>${VERT[S.vert].n}</b> loaded — ${VERT[S.vert].st.length} stages with a starting service composition on each. Continue to choose which ones you are contracted for.</div>`:''}
+  </div></div>`;
+}
+
+/* step 1 — scope */
+function v1(){
+  if(!S.vert)return need();
+  const V=VERT[S.vert];
+  return `<div class="scroll" style="flex:1"><div class="wrap">
+   <h3 class="sec">Which parts do we run?</h3>
+   <p class="sub">A client rarely outsources the whole cycle. Switch on only the stages in scope — each becomes a process in this client's environment, with its own SLA, queue and billable unit.</p>
+   <div class="chain">${V.st.map(([id,n,u],i)=>`
+     <div class="stage ${S.on[id]?'on':''}">
+       <div class="gut"><div class="no">${i+1}</div><div class="ln"></div></div>
+       <div class="srow" data-stg="${id}">
+         <div class="tx"><h5>${n}</h5><p>${(S.pipe[id]||[]).length} services composed</p></div>
+         <div class="meta"><div class="u">${u}</div><div class="tog ${S.on[id]?'on':''}"><i></i></div></div>
+       </div>
+     </div>`).join('')}</div>
+  </div></div>`;
+}
+
+/* step 2 — assemble */
+function v2(){
+  if(!S.vert)return need();
+  const V=VERT[S.vert],stages=V.st.filter(s=>S.on[s[0]]);
+  if(!stages.length)return `<div class="empty" style="flex:1;padding-top:80px"><h4>No stages in scope</h4><div>Go back and switch on at least one stage.</div></div>`;
+  if(!S.on[S.stage])S.stage=stages[0][0];
+  const st=V.st.find(s=>s[0]===S.stage),pipe=S.pipe[S.stage]||[];
+  return `<div id="asm">
+   <div class="col colL">
+     <div class="colhd"><span class="lbl">Processes in scope</span></div>
+     ${stages.map(([id,n])=>`<button class="sitem ${S.stage===id?'on':''}" data-stg2="${id}">
+        <span class="n">${n}</span><span class="c">${(S.pipe[id]||[]).length}</span></button>`).join('')}
+     <div class="colhd" style="position:static;margin-top:10px"><span class="lbl">Observers</span></div>
+     ${['qa.sample','qa.drift','qa.shadow','analytics.project','meter.bill'].map(s=>`
+       <button class="sitem ${S.obs[s]?'':'off'}" data-obs="${s}">
+         <span class="ic" style="color:var(--ink3)">${ic(CAT[s].i)}</span>
+         <span class="n">${CAT[s].n}</span>
+         <span class="c">${S.obs[s]?'on':'off'}</span></button>`).join('')}
+   </div>
+
+   <div class="col">
+     <div class="colhd"><span class="lbl">${st[1]}</span>
+       <span class="lbl" style="margin-left:auto">${st[2]}</span></div>
+     <div class="pipe">
+      ${KINDS.map(k=>{
+        const items=pipe.filter(s=>CAT[s].k===k);
+        return `<div class="lane">
+          <div class="lanehd"><span class="k kb-${k}"></span><span class="lbl">${KN[k]}</span></div>
+          <div class="nodes">
+            ${items.map((s,i)=>`${i?'<span class="cn">'+I('<path d="M5 12h14M14 7l5 5-5 5"/>')+'</span>':''}
+              <div class="node ${S.sel===s?'on':''}" data-svc="${s}">
+                <span class="ic k-${k}">${ic(CAT[s].i)}</span>
+                <span class="tx"><b>${CAT[s].n}</b><span>${s}</span></span>
+                <span class="x" data-del="${s}">×</span>
+              </div>`).join('')}
+            ${items.length?'<span class="cn">'+I('<path d="M5 12h14M14 7l5 5-5 5"/>')+'</span>':''}
+            <button class="addb" data-add="${k}">${I('<path d="M12 5v14M5 12h14"/>')} Add</button>
+          </div></div>`}).join('')}
+      <div class="lane">
+        <div class="lanehd"><span class="k kb-platform"></span><span class="lbl">Automatically attached</span></div>
+        <div class="nodes">${PLATFORM.map(s=>`
+          <div class="node locked"><span class="ic k-platform">${ic(CAT[s].i)}</span>
+            <span class="tx"><b>${CAT[s].n}</b><span>every process</span></span></div>`).join('')}</div>
+      </div>
+     </div>
+   </div>
+
+   <div class="col colR">
+     <div class="colhd"><span class="lbl">${S.sel?'Configure':'Inspector'}</span></div>
+     ${S.sel?inspector(S.sel):`<div class="empty"><h4>Nothing selected</h4><div>Pick a service to configure it, or add one to the pipeline.</div></div>`}
+   </div>
+  </div>`;
+}
+
+function inspector(svc){
+  const c=CAT[svc],stage=CAT[svc].k==='observer'?'_obs':(CAT[svc].k==='platform'?'_plat':S.stage);
+  ensureCfg(stage,svc);const st=cfgOf(stage,svc);
+  return `<div class="insp">
+   <div class="ihd"><span class="ic k-${c.k}" style="width:32px;height:32px">${ic(c.i)}</span>
+     <div><h4>${c.n}</h4><div class="id">${svc}</div></div></div>
+   <div class="iblurb">${c.b}</div>
+   ${(c.cfg||[]).map(f=>{
+     if(f.if&&!f.if(st))return '';
+     const v=st[f.k];
+     if(f.t==='tog')return `<div class="fld row"><label>${f.l}</label>
+        <div class="tog ${v?'on':''}" data-cfg="${svc}" data-fk="${f.k}" data-tt="tog"><i></i></div></div>
+        ${f.h?`<div class="hlp" style="margin:-8px 0 12px;font-size:11px;color:var(--ink3)">${f.h}</div>`:''}`;
+     if(f.t==='chips')return `<div class="fld"><label>${f.l}</label><div class="chips">
+        ${f.o.map(o=>`<button class="ch ${(v||[]).includes(o)?'on':''}" data-cfg="${svc}" data-fk="${f.k}" data-tt="chip" data-val="${o}">${o}</button>`).join('')}
+        </div>${f.h?`<div class="hlp">${f.h}</div>`:''}</div>`;
+     if(f.t==='select')return `<div class="fld"><label>${f.l}</label>
+        <select data-cfg="${svc}" data-fk="${f.k}" data-tt="val">${f.o.map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>
+        ${f.h?`<div class="hlp">${f.h}</div>`:''}</div>`;
+     if(f.t==='area')return `<div class="fld"><label>${f.l}</label>
+        <textarea data-cfg="${svc}" data-fk="${f.k}" data-tt="val">${v||''}</textarea>${f.h?`<div class="hlp">${f.h}</div>`:''}</div>`;
+     return `<div class="fld"><label>${f.l}</label>
+        <input type="${f.t==='num'?'number':'text'}" step="any" value="${v??''}" data-cfg="${svc}" data-fk="${f.k}" data-tt="val">
+        ${f.h?`<div class="hlp">${f.h}</div>`:''}</div>`}).join('')}
+   ${svc==='src.mailbox'&&!S.pipe[S.stage].includes('ai.intent')&&st.ai?
+     `<div class="hint w"><b>Suggested link.</b> Intent reading is on here, but no <b>Intent detection</b> service is in the pipeline. Add one so the intent actually routes the task.</div>`:''}
+   ${svc==='out.rpa'?`<div class="hint w"><b>Latency note.</b> A cold browser costs 3–15 seconds. The warm pool is the single largest real latency lever in this pipeline.</div>`:''}
+   ${svc==='form.setup'?`<div class="hint"><b>Onboarding lever.</b> The form is generated from the field schema, so a new document type is live the same day rather than next sprint.</div>`:''}
+  </div>`;
+}
+
+/* step 3 — platform */
+function v3(){
+  if(!S.vert)return need();
+  return `<div class="scroll" style="flex:1"><div class="wrap">
+   <h3 class="sec">Platform services</h3>
+   <p class="sub">Attached to every process automatically — you configure them, you don't choose them. This client runs in its own isolated environment, so these are scoped to that environment alone.</p>
+   <div class="two">
+     <div>${PLATFORM.slice(0,3).map(s=>platCard(s)).join('')}</div>
+     <div>${PLATFORM.slice(3).map(s=>platCard(s)).join('')}</div>
+   </div>
+  </div></div>`;
+}
+function platCard(s){
+  const c=CAT[s];ensureCfg('_plat',s);const st=cfgOf('_plat',s);
+  return `<div class="card" style="margin-bottom:14px">
+   <div class="cardh"><span class="ic k-platform" style="width:26px;height:26px;border-radius:4px;display:grid;place-items:center">${ic(c.i)}</span>
+     <div><div style="font-size:13px;font-weight:600">${c.n}</div><div class="mono" style="font-size:10px;color:var(--ink3)">${s}</div></div></div>
+   <div style="padding:12px 14px">
+     <div style="font-size:12px;color:var(--ink2);margin-bottom:12px;line-height:1.5">${c.b}</div>
+     ${c.cfg.map(f=>{
+       const v=st[f.k];
+       if(f.t==='tog')return `<div class="fld row"><label>${f.l}</label><div class="tog ${v?'on':''}" data-cfg="${s}" data-fk="${f.k}" data-tt="tog" data-plat="1"><i></i></div></div>`;
+       if(f.t==='chips')return `<div class="fld"><label>${f.l}</label><div class="chips">${f.o.map(o=>`<button class="ch ${(v||[]).includes(o)?'on':''}" data-cfg="${s}" data-fk="${f.k}" data-tt="chip" data-val="${o}" data-plat="1">${o}</button>`).join('')}</div></div>`;
+       if(f.t==='select')return `<div class="fld"><label>${f.l}</label><select data-cfg="${s}" data-fk="${f.k}" data-tt="val" data-plat="1">${f.o.map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select></div>`;
+       return `<div class="fld"><label>${f.l}</label><input type="${f.t==='num'?'number':'text'}" value="${v??''}" data-cfg="${s}" data-fk="${f.k}" data-tt="val" data-plat="1"></div>`}).join('')}
+   </div></div>`;
+}
+
+/* step 4 — review */
+function validate(){
+  const r=[],V=VERT[S.vert];
+  V.st.filter(s=>S.on[s[0]]).forEach(([id,n])=>{
+    const p=S.pipe[id]||[];
+    if(!p.some(s=>CAT[s].k==='source'))r.push(['e',`${n} — no intake service. Work cannot reach this process.`]);
+    if(!p.some(s=>CAT[s].k==='sink'))r.push(['e',`${n} — no output service. Work has nowhere to go.`]);
+    if(p.includes('idp.extract')&&!p.some(s=>CAT[s].k==='assist')&&cfgOf(id,'idp.extract').auto<0.97)
+      r.push(['w',`${n} — auto-post threshold is ${cfgOf(id,'idp.extract').auto} with no human review configured.`]);
+    if(p.includes('src.mailbox')&&cfgOf(id,'src.mailbox').ai&&!p.includes('ai.intent'))
+      r.push(['w',`${n} — email intent is enabled but no intent service consumes it.`]);
+    if(p.includes('out.rpa')&&cfgOf(id,'out.rpa').pool<2)
+      r.push(['w',`${n} — RPA warm pool below 2. Expect cold-start latency on every post.`]);
+  });
+  if(!Object.values(S.obs).some(Boolean))r.push(['w','No observers enabled. Quality and metering cost nothing to add and cannot break a pipeline.']);
+  if(Object.keys(S.on).filter(k=>S.on[k]).length===0)r.push(['e','No stages in scope.']);
+  if(!r.some(x=>x[0]==='e'))r.unshift(['g','Composition valid — every edge type-checks and every capability resolves.']);
+  return r;
+}
+function yaml(){
+  const V=VERT[S.vert],q=s=>`<span class="v">${s}</span>`;
+  let o=`<span class="c"># malkom · client environment blueprint</span>\n<span class="k">client:</span>   ${q('new-client-01')}\n<span class="k">business:</span> ${q(V.n)}\n<span class="k">version:</span>  ${q('1')}\n\n<span class="k">processes:</span>\n`;
+  V.st.filter(s=>S.on[s[0]]).forEach(([id,n,u])=>{
+    o+=`  - <span class="k">id:</span> ${q(id)}\n    <span class="k">name:</span> ${q('"'+n+'"')}\n    <span class="k">billableUnit:</span> ${q(u)}\n    <span class="k">pipeline:</span>\n`;
+    (S.pipe[id]||[]).forEach(s=>{
+      const c=cfgOf(id,s),keys=Object.keys(c).slice(0,3);
+      o+=`      - <span class="d">${s}</span>\n`;
+      keys.forEach(k=>{const v=c[k];o+=`          <span class="k">${k}:</span> ${q(Array.isArray(v)?'['+v.join(', ')+']':String(v))}\n`});
+    });
+  });
+  const ob=Object.keys(S.obs).filter(k=>S.obs[k]);
+  if(ob.length){o+=`\n<span class="k">observers:</span>\n`;ob.forEach(s=>o+=`  - <span class="d">${s}</span>\n`)}
+  o+=`\n<span class="k">platform:</span>          <span class="c"># attached to every process</span>\n`;
+  PLATFORM.forEach(s=>{const c=cfgOf('_plat',s);const k0=Object.keys(c)[0];
+    o+=`  - <span class="d">${s}</span>\n      <span class="k">${k0}:</span> ${q(Array.isArray(c[k0])?'['+c[k0].join(', ')+']':String(c[k0]))}\n`});
+  o+=`\n<span class="k">tenancy:</span> ${q('isolated environment')}\n<span class="k">channel:</span> ${q('stable')}\n`;
+  return o;
+}
+function v4(){
+  if(!S.vert)return need();
+  const r=validate(),m=metrics();
+  return `<div class="scroll" style="flex:1"><div class="wrap">
+   <h3 class="sec">Review & publish</h3>
+   <p class="sub">The composition compiles to a signed plan artifact. Save it as JSON to hand to a colleague, or load someone else's to start from their work.</p>
+   <div class="two">
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="cardh"><span class="lbl">Compiler</span><span class="lbl" style="margin-left:auto">${m.total} services · ${m.bound} boundaries</span></div>
+        ${r.map(([t,x])=>`<div class="vres"><span class="${t}">${t==='g'?'✓':t==='w'?'△':'✕'}</span><span>${x}</span></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="cardh"><span class="lbl">Estimate</span></div>
+        <div style="padding:13px 14px">
+          <div class="fld row"><label>Processes in scope</label><b class="mono">${m.stages}</b></div>
+          <div class="fld row"><label>Services composed</label><b class="mono">${m.total}</b></div>
+          <div class="fld row"><label>Custom code blocks</label><b class="mono">${m.custom}</b></div>
+          <div class="fld row"><label>Arrival p95 estimate</label><b class="mono">${m.p95}s</b></div>
+          <div class="fld row" style="border-top:1px solid var(--rule);padding-top:11px;margin-top:4px">
+            <label style="font-weight:600">Estimated time to live</label><b class="mono" style="font-size:17px;color:var(--marine)">${m.days} days</b></div>
+          <div class="hlp" style="margin-top:8px">Configuration is same-day. Custom code and RPA scripts are what add weeks — the estimate moves as you add them.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn pri" data-a="export">${I('<path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>')} Save as JSON</button>
+        <button class="btn" data-a="import">${I('<path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>')} Load JSON</button>
+        <button class="btn" data-a="copy">Copy blueprint</button>
+      </div>
+    </div>
+    <div><div class="card"><div class="cardh"><span class="lbl">Compiled blueprint</span></div>
+      <pre id="yml">${yaml()}</pre></div></div>
+   </div>
+  </div></div>`;
+}
+const need=()=>`<div class="empty" style="flex:1;padding-top:80px"><h4>Pick a business model first</h4><div>Step 1 decides everything downstream.</div></div>`;
+
+/* ═══════════════ PALETTE ═══════════════ */
+function palette(kind){
+  const inPipe=S.pipe[S.stage]||[];
+  const list=Object.entries(CAT).filter(([id,c])=>c.k===kind);
+  document.body.insertAdjacentHTML('beforeend',`<div class="pal" id="pal">
+   <div class="palbox">
+     <div class="palhd"><span class="ic k-${kind}" style="width:26px;height:26px;border-radius:4px;display:grid;place-items:center">${ic(list[0][1].i)}</span>
+       <div><div style="font-weight:600">${KN[kind]}</div><div class="lbl">choose a service to add</div></div>
+       <button class="btn" style="margin-left:auto" data-close="1">Close</button></div>
+     <div class="palbody"><div class="pgrid">
+       ${list.map(([id,c])=>`<div class="pitem ${inPipe.includes(id)?'dis':''}" ${inPipe.includes(id)?'':`data-pick="${id}"`}>
+          <span class="ic k-${c.k}">${ic(c.i)}</span>
+          <div><b>${c.n}</b><span>${c.b}</span></div></div>`).join('')}
+     </div></div>
+   </div></div>`);
+}
+function closePal(){const p=document.getElementById('pal');if(p)p.remove()}
+
+/* ═══════════════ IO ═══════════════ */
+function exportJSON(){
+  const blob=new Blob([JSON.stringify({v:1,vert:S.vert,on:S.on,pipe:S.pipe,cfg:S.cfg,obs:S.obs},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`malkom-${S.vert||'draft'}-blueprint.json`;a.click();
+  toast('Saved — share the file, others load it here');
+}
+function importJSON(){
+  const i=document.createElement('input');i.type='file';i.accept='.json';
+  i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{try{const d=JSON.parse(r.result);
+      S.vert=d.vert;S.on=d.on;S.pipe=d.pipe;S.cfg=d.cfg;S.obs=d.obs||{};
+      S.stage=Object.keys(S.on).find(k=>S.on[k]);S.sel=null;S.step=2;render();
+      toast('Loaded — assembled composition restored');
+    }catch(err){toast('That file could not be read as a blueprint')}};
+    r.readAsText(f)};
+  i.click();
+}
+function toast(m){document.getElementById('tmsg').textContent=m;
+  const t=document.getElementById('toast');t.classList.add('on');
+  clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),2600)}
+
+/* ═══════════════ EVENTS ═══════════════ */
+document.addEventListener('click',e=>{
+  const t=e.target;
+  const g=(a)=>t.closest(`[${a}]`);
+  if(g('data-close')||t.id==='pal'){closePal();return}
+  let x;
+  if(x=g('data-step')){S.step=+x.dataset.step;render();return}
+  if(x=g('data-vert')){loadVert(x.dataset.vert);render();return}
+  if(x=g('data-stg')){const id=x.dataset.stg;S.on[id]=!S.on[id];render();return}
+  if(x=g('data-stg2')){S.stage=x.dataset.stg2;S.sel=null;render();return}
+  if(x=g('data-obs')){const s=x.dataset.obs;S.obs[s]=!S.obs[s];ensureCfg('_obs',s);if(S.obs[s])S.sel=s;render();return}
+  if(x=g('data-del')){e.stopPropagation();S.pipe[S.stage]=S.pipe[S.stage].filter(s=>s!==x.dataset.del);
+    if(S.sel===x.dataset.del)S.sel=null;render();return}
+  if(x=g('data-svc')){S.sel=x.dataset.svc;render();return}
+  if(x=g('data-add')){S.palKind=x.dataset.add;palette(S.palKind);return}
+  if(x=g('data-pick')){const id=x.dataset.pick;S.pipe[S.stage].push(id);ensureCfg(S.stage,id);
+    closePal();S.sel=id;render();toast(`${CAT[id].n} added`);return}
+  if(x=g('data-tt')){
+    const svc=x.dataset.cfg,fk=x.dataset.fk,tt=x.dataset.tt;
+    const stage=x.dataset.plat?'_plat':(CAT[svc].k==='observer'?'_obs':S.stage);
+    const c=S.cfg[stage+'::'+svc];
+    if(tt==='tog'){c[fk]=!c[fk];render()}
+    if(tt==='chip'){const v=x.dataset.val;c[fk]=c[fk]||[];
+      c[fk]=c[fk].includes(v)?c[fk].filter(y=>y!==v):[...c[fk],v];render()}
+    return}
+  if(x=g('data-a')){
+    const a=x.dataset.a;
+    if(a==='export')exportJSON();
+    if(a==='import')importJSON();
+    if(a==='copy'){const el=document.getElementById('yml');
+      navigator.clipboard?.writeText(el.innerText).then(()=>toast('Blueprint copied'));}
+    if(a==='next'){if(S.step===0&&!S.vert){toast('Choose a business model first');return}
+      S.step=Math.min(4,S.step+1);render()}
+    return}
+});
+document.addEventListener('change',e=>{
+  const x=e.target.closest('[data-tt="val"]');if(!x)return;
+  const svc=x.dataset.cfg,fk=x.dataset.fk;
+  const stage=x.dataset.plat?'_plat':(CAT[svc].k==='observer'?'_obs':S.stage);
+  const f=CAT[svc].cfg.find(y=>y.k===fk);
+  S.cfg[stage+'::'+svc][fk]= f.t==='num'? parseFloat(x.value): x.value;
+  drawMeters();
+  if(f.if||CAT[svc].cfg.some(y=>y.if))render();
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+{
+ "id": "cms4nf9bb001n72oddw7lh93c",
+ "slug": "business-problem",
+ "title": "Business Problem",
+ "summary": "The pain points driving MALKOM 3.0 and what it costs to leave them unsolved.",
+ "sections": [
+  {
+   "id": "cms4nf9bi001p72odyk6p05nj",
+   "slug": "problems",
+   "title": "Problem statements",
+   "description": null,
+   "order": 0,
+   "blocks": [
+    {
+     "id": "cms4nf9bp001r72odffalphk8",
+     "kind": "PROBLEM_STATEMENT",
+     "payload": {
+      "title": "Fragmented planning communication",
+      "impact": "Decisions are re-litigated, feedback is lost, and alignment costs weeks per cycle.",
+      "severity": 4,
+      "narrative": "Programme plans live in slide decks and email threads. Stakeholders review stale copies, and feedback arrives through channels that cannot be tracked or actioned systematically.",
+      "stakeholders": [
+       "Programme leadership",
+       "Delivery teams",
+       "Business stakeholders"
+      ]
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cms4nf9bw001t72od0shiz9ox",
+     "kind": "PROBLEM_STATEMENT",
+     "payload": {
+      "title": "No single view of decision rationale",
+      "impact": "The same questions are answered repeatedly; historical context is unrecoverable.",
+      "severity": 3,
+      "narrative": "Options analysis and the reasoning behind chosen approaches are scattered, making onboarding slow and challenge cycles repetitive.",
+      "stakeholders": [
+       "New joiners",
+       "Architecture board",
+       "Programme leadership"
+      ]
+     },
+     "order": 1,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cms4nf9c3001v72odknhjad70",
+   "slug": "success-criteria",
+   "title": "MVP success criteria",
+   "description": null,
+   "order": 1,
+   "blocks": [
+    {
+     "id": "cms4nf9ca001x72odgv7cuufw",
+     "kind": "GRID_GROUP",
+     "payload": {
+      "columns": 3
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": [
+      {
+       "id": "cms4nf9ch001z72odudbpbc8q",
+       "kind": "LIST_ITEM",
+       "payload": {
+        "icon": "check_circle",
+        "text": "All five plan sections live and current"
+       },
+       "order": 0,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      },
+      {
+       "id": "cms4nf9cn002172odvbblfmrp",
+       "kind": "LIST_ITEM",
+       "payload": {
+        "icon": "check_circle",
+        "text": "Feedback captured and tracked to resolution"
+       },
+       "order": 1,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      },
+      {
+       "id": "cms4nf9cu002372od9s2nzojc",
+       "kind": "LIST_ITEM",
+       "payload": {
+        "icon": "check_circle",
+        "text": "Leadership visibility via analytics"
+       },
+       "order": 2,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "embeds": {
+  "approaches": {},
+  "timeline": [],
+  "kpis": {},
+  "diagrams": {}
+ }
+}

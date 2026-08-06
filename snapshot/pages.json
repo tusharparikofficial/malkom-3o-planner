@@ -1,0 +1,50 @@
+[
+ {
+  "id": "cms4nf98g000v72odl4o1xply",
+  "slug": "home",
+  "title": "Home",
+  "summary": "Everything happening on the MALKOM 3.0 MVP at a glance.",
+  "order": 0,
+  "updatedAt": "2026-07-28T12:45:23.200Z"
+ },
+ {
+  "id": "cms4nf9ad001e72odd90qmngg",
+  "slug": "approach",
+  "title": "Approach & Considerations",
+  "summary": "The delivery options we evaluated, scored against weighted criteria, with a clear recommendation.",
+  "order": 1,
+  "updatedAt": "2026-07-28T12:45:23.269Z"
+ },
+ {
+  "id": "cms4nf9bb001n72oddw7lh93c",
+  "slug": "business-problem",
+  "title": "Business Problem",
+  "summary": "The pain points driving MALKOM 3.0 and what it costs to leave them unsolved.",
+  "order": 2,
+  "updatedAt": "2026-07-28T12:45:23.304Z"
+ },
+ {
+  "id": "cms4nf9d1002472od46d4br1t",
+  "slug": "solutions",
+  "title": "Solutions",
+  "summary": "The solution blueprint, architecture views, and the delivery timeline.",
+  "order": 3,
+  "updatedAt": "2026-07-28T12:45:23.366Z"
+ },
+ {
+  "id": "cms4nf9fg002t72odhpdc4idc",
+  "slug": "voice-of-customer",
+  "title": "Voice of Customer",
+  "summary": "What users and stakeholders are telling us, grouped into actionable themes.",
+  "order": 4,
+  "updatedAt": "2026-07-28T12:45:23.453Z"
+ },
+ {
+  "id": "cmshitq3u0001gai9ak2vbtxg",
+  "slug": "architecture",
+  "title": "Architecture & Flow",
+  "summary": "Bookings flow, layered architecture & tech stack, modules, roles and core engines — the consolidated MALKOM 3.0 blueprint.",
+  "order": 6,
+  "updatedAt": "2026-08-06T12:57:40.459Z"
+ }
+]

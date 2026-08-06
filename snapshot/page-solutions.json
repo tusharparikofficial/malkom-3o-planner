@@ -1,0 +1,209 @@
+{
+ "id": "cms4nf9d1002472od46d4br1t",
+ "slug": "solutions",
+ "title": "Solutions",
+ "summary": "The solution blueprint, architecture views, and the delivery timeline.",
+ "sections": [
+  {
+   "id": "cms4nf9d8002672odgbkxrx8z",
+   "slug": "blueprint",
+   "title": "Blueprint",
+   "description": null,
+   "order": 0,
+   "blocks": [
+    {
+     "id": "cms4nf9df002872od5w79eqb2",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "Capability blueprint for the MALKOM 3.0 MVP, grouped by layer."
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cms4nf9dl002a72odeo5933yc",
+     "kind": "GRID_GROUP",
+     "payload": {
+      "columns": 3
+     },
+     "order": 1,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": [
+      {
+       "id": "cms4nf9ds002c72odb6t92xde",
+       "kind": "BLUEPRINT_BLOCK",
+       "payload": {
+        "icon": "devices",
+        "layer": "Presentation",
+        "title": "Experience",
+        "description": "Stakeholder portal, feedback capture, dashboards."
+       },
+       "order": 0,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      },
+      {
+       "id": "cms4nf9dz002e72odkfsrd5lr",
+       "kind": "BLUEPRINT_BLOCK",
+       "payload": {
+        "icon": "api",
+        "layer": "Application",
+        "title": "Services",
+        "description": "Content, feedback, analytics and identity services."
+       },
+       "order": 1,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      },
+      {
+       "id": "cms4nf9e6002g72odhm3av0f4",
+       "kind": "BLUEPRINT_BLOCK",
+       "payload": {
+        "icon": "database",
+        "layer": "Data",
+        "title": "Data",
+        "description": "Single Postgres store: content, feedback, events, audit."
+       },
+       "order": 2,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cms4nf9ec002i72odo24utz4p",
+   "slug": "hld",
+   "title": "High-Level Architecture",
+   "description": null,
+   "order": 1,
+   "blocks": [
+    {
+     "id": "cms4nf9ej002k72odba6ogfuf",
+     "kind": "DIAGRAM",
+     "payload": {
+      "source": "MERMAID",
+      "caption": "High-level architecture — replace with the full MALKOM diagram.",
+      "mermaid": "graph LR\n  U[Stakeholders] --> W[React SPA]\n  W --> A[Fastify API]\n  A --> D[(PostgreSQL)]\n  A --> S[InstaSafe SSO]\n"
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cms4nf9eq002m72odpfwyd37b",
+   "slug": "lld",
+   "title": "Low-Level Architecture",
+   "description": null,
+   "order": 2,
+   "blocks": [
+    {
+     "id": "cms4nf9ew002o72odtdhfku97",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "_Placeholder_ — detailed component and interface design will be authored here (Mermaid diagrams and component tables per module)."
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cms4nf9f3002q72od621mrwck",
+   "slug": "timeline",
+   "title": "Timeline",
+   "description": null,
+   "order": 3,
+   "blocks": [
+    {
+     "id": "cms4nf9fa002s72od6ww2ab32",
+     "kind": "TIMELINE_EMBED",
+     "payload": {},
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  }
+ ],
+ "embeds": {
+  "approaches": {},
+  "timeline": [
+   {
+    "id": "cms4nf97u000p72odsh5otjzd",
+    "title": "Discovery & Planning",
+    "description": null,
+    "startDate": "2026-06-16T12:45:23.177Z",
+    "endDate": "2026-07-14T12:45:23.177Z",
+    "status": "DONE",
+    "order": 0,
+    "milestones": [
+     {
+      "id": "cms4nf97u000q72odo00txxx0",
+      "phaseId": "cms4nf97u000p72odsh5otjzd",
+      "title": "Discovery & Planning — key milestone",
+      "description": null,
+      "dueDate": "2026-07-07T12:45:23.177Z",
+      "status": "DONE",
+      "order": 0
+     }
+    ]
+   },
+   {
+    "id": "cms4nf981000r72od0dg9cg67",
+    "title": "MVP Build",
+    "description": null,
+    "startDate": "2026-07-14T12:45:23.177Z",
+    "endDate": "2026-09-22T12:45:23.177Z",
+    "status": "IN_PROGRESS",
+    "order": 1,
+    "milestones": [
+     {
+      "id": "cms4nf981000s72odup4ldfe0",
+      "phaseId": "cms4nf981000r72od0dg9cg67",
+      "title": "MVP Build — key milestone",
+      "description": null,
+      "dueDate": "2026-09-15T12:45:23.177Z",
+      "status": "PLANNED",
+      "order": 0
+     }
+    ]
+   },
+   {
+    "id": "cms4nf988000t72od5gguwkjk",
+    "title": "Pilot & Rollout",
+    "description": null,
+    "startDate": "2026-09-22T12:45:23.177Z",
+    "endDate": "2026-11-03T12:45:23.177Z",
+    "status": "PLANNED",
+    "order": 2,
+    "milestones": [
+     {
+      "id": "cms4nf988000u72od0hb5pb9i",
+      "phaseId": "cms4nf988000t72od5gguwkjk",
+      "title": "Pilot & Rollout — key milestone",
+      "description": null,
+      "dueDate": "2026-10-27T12:45:23.177Z",
+      "status": "PLANNED",
+      "order": 0
+     }
+    ]
+   }
+  ],
+  "kpis": {},
+  "diagrams": {}
+ }
+}

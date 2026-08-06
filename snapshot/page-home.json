@@ -1,0 +1,151 @@
+{
+ "id": "cms4nf98g000v72odl4o1xply",
+ "slug": "home",
+ "title": "Home",
+ "summary": "Everything happening on the MALKOM 3.0 MVP at a glance.",
+ "sections": [
+  {
+   "id": "cms4nf98n000x72od876hksmk",
+   "slug": "hero",
+   "title": "Overview",
+   "description": null,
+   "order": 0,
+   "blocks": [
+    {
+     "id": "cms4nf98t000z72odvbeya7l4",
+     "kind": "HERO",
+     "payload": {
+      "badge": "MVP Build in progress",
+      "title": "MALKOM 3.0 MVP",
+      "subtitle": "One source of truth for the MALKOM modernisation programme — the problem, the approach, the solution, and your voice in it."
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cms4nf990001172od2ide8b3q",
+     "kind": "KPI_STRIP",
+     "payload": {
+      "metrics": [
+       {
+        "key": "approaches.count",
+        "label": "Approaches evaluated"
+       },
+       {
+        "key": "options.count",
+        "label": "Options on the table"
+       },
+       {
+        "key": "feedback.open",
+        "label": "Open feedback"
+       },
+       {
+        "key": "feedback.resolved",
+        "label": "Feedback resolved"
+       },
+       {
+        "key": "milestone.next.days",
+        "label": "Days to next milestone"
+       }
+      ]
+     },
+     "order": 1,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cms4nf997001372odybielnys",
+   "slug": "digests",
+   "title": "Explore the plan",
+   "description": null,
+   "order": 1,
+   "blocks": [
+    {
+     "id": "cms4nf99e001572odrqywcj7m",
+     "kind": "GRID_GROUP",
+     "payload": {
+      "columns": 2
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": [
+      {
+       "id": "cms4nf99l001772od1shx0crq",
+       "kind": "CARD",
+       "payload": {
+        "body": "Why MALKOM 3.0 exists — the pain points, their impact, and the cost of doing nothing.",
+        "href": "/business-problem",
+        "icon": "report_problem",
+        "title": "Business Problem"
+       },
+       "order": 0,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      },
+      {
+       "id": "cms4nf99s001972odjheqwdor",
+       "kind": "CARD",
+       "payload": {
+        "body": "The options we weighed, how they scored, and what we recommend.",
+        "href": "/approach",
+        "icon": "alt_route",
+        "title": "Approach & Considerations"
+       },
+       "order": 1,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      },
+      {
+       "id": "cms4nf99z001b72od8xrf4xgg",
+       "kind": "CARD",
+       "payload": {
+        "body": "Blueprint, architecture views and the delivery timeline.",
+        "href": "/solutions/blueprint",
+        "icon": "architecture",
+        "title": "Solutions"
+       },
+       "order": 2,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      },
+      {
+       "id": "cms4nf9a6001d72odstmslkw1",
+       "kind": "CARD",
+       "payload": {
+        "body": "What users and stakeholders are telling us, grouped into themes.",
+        "href": "/voice-of-customer",
+        "icon": "record_voice_over",
+        "title": "Voice of Customer"
+       },
+       "order": 3,
+       "status": "PUBLISHED",
+       "createdById": "cms4ltpj50000tpqxbjl07o7n",
+       "children": []
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "embeds": {
+  "approaches": {},
+  "timeline": [],
+  "kpis": {
+   "options.count": "3",
+   "approaches.count": "1",
+   "milestone.next.days": "40",
+   "feedback.open": "1",
+   "feedback.resolved": "0"
+  },
+  "diagrams": {}
+ }
+}

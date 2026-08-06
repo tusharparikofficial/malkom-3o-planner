@@ -10,19 +10,52 @@ const MAX_SCALE = 8;
  * drag to pan, double-click to toggle, Esc / × to close. Used for every image
  * rendered inside rich-text blocks (architecture & deployment posters).
  */
+const LOUPE_SIZE = 220;
+const LOUPE_ZOOM = 2.5;
+
 export function ZoomableImage({ src, alt }: { src?: string; alt?: string }) {
   const [open, setOpen] = useState(false);
+  const [loupe, setLoupe] = useState<{ x: number; y: number } | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  const dims = imgRef.current
+    ? { w: imgRef.current.offsetWidth, h: imgRef.current.offsetHeight }
+    : { w: 0, h: 0 };
+
   return (
-    <>
+    <span className="relative inline-block">
       <img
+        ref={imgRef}
         src={src}
         alt={alt ?? ""}
         className="max-w-full cursor-zoom-in rounded-lg"
         onClick={() => setOpen(true)}
-        title="Click to zoom"
+        onMouseMove={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setLoupe({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+        }}
+        onMouseLeave={() => setLoupe(null)}
+        title="Hover to magnify · click to open full screen"
       />
+      {loupe && dims.w > 0 && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute z-20 block rounded-full border-2 border-white shadow-2xl ring-1 ring-slate-300"
+          style={{
+            width: LOUPE_SIZE,
+            height: LOUPE_SIZE,
+            left: loupe.x - LOUPE_SIZE / 2,
+            top: loupe.y - LOUPE_SIZE / 2,
+            backgroundImage: `url(${src})`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: `${dims.w * LOUPE_ZOOM}px ${dims.h * LOUPE_ZOOM}px`,
+            backgroundPosition: `${-(loupe.x * LOUPE_ZOOM - LOUPE_SIZE / 2)}px ${-(loupe.y * LOUPE_ZOOM - LOUPE_SIZE / 2)}px`,
+            backgroundColor: "#fff",
+          }}
+        />
+      )}
       {open && <Lightbox src={src} alt={alt} onClose={() => setOpen(false)} />}
-    </>
+    </span>
   );
 }
 

@@ -42,6 +42,114 @@ export const ARCHITECTURE_SECTIONS: SectionSeed[] = [
     ],
   },
 
+  // ── Client deployment model (poster + provisioning / options / commons) ──
+  {
+    slug: "deployment-model",
+    title: "Client Deployment",
+    description:
+      "Multi-tenant provisioning — parent platform → organization setup → deployment structure",
+    blocks: [
+      {
+        kind: "RICH_TEXT",
+        payload: md(
+          "![MALKOM 3.0 — Deployment Model: multi-tenant provisioning, parent platform, organization setup and deployment structure options](/deployment-poster.png)",
+        ),
+      },
+      {
+        kind: "RICH_TEXT",
+        payload: md(
+          "### 🏢 Organization provisioning — flow\n\n" +
+            "Every client is an organization (tenant), created and configured from the parent platform.",
+        ),
+      },
+      {
+        kind: "DATA_TABLE",
+        payload: table(
+          ["Step", "What happens"],
+          [
+            [
+              "1 · Parent Platform",
+              "Central control plane — owns, creates and governs every organization running on MALKOM 3.0. Org management • Platform governance",
+            ],
+            [
+              "2 · Create New Organization",
+              "A new client organization is spun up from the parent platform — an isolated tenant with its own users, data and configuration. Per-org RBAC & data isolation",
+            ],
+            [
+              "3 · Configure Org Requirements",
+              "Per-organization platform setup: Queues — Q & Sub-Q • Deployment structure • Features. The deployment structure is selected here.",
+            ],
+          ],
+        ),
+      },
+      {
+        kind: "RICH_TEXT",
+        payload: md(
+          "### ☁ Deployment structure — options\n\n" +
+            "Chosen per organization during configuration — same containerized codebase in every model (open architecture).",
+        ),
+      },
+      {
+        kind: "DATA_TABLE",
+        payload: table(
+          ["Option", "Model", "Our cloud (WNS)", "Client cloud / on-prem", "Best for"],
+          [
+            [
+              "A",
+              "Fully hosted — our cloud",
+              "Main App + Features",
+              "Users — browser / API access only",
+              "Fastest onboarding — we run everything; the client consumes via browser & APIs.",
+            ],
+            [
+              "B",
+              "Split — features in client cloud",
+              "Main App",
+              "Features",
+              "Data-heavy features stay inside the client environment (data residency / gravity).",
+            ],
+            [
+              "C",
+              "Fully client-hosted",
+              "Parent platform — governance only",
+              "Main App + Features",
+              "Full sovereignty — platform deployed into the client cloud or on-prem (K8s · MinIO).",
+            ],
+            [
+              "D",
+              "Hybrid mix",
+              "Main App + Features — set 1",
+              "Features — set 2",
+              "Per-feature placement — each feature hosted where it fits best, set at org configuration.",
+            ],
+          ],
+          "One deployment structure is selected per organization",
+        ),
+      },
+      {
+        kind: "RICH_TEXT",
+        payload: md(
+          "### 🛡 Common to every model\n\n" +
+            "The deployment choice never changes the product — one open, containerized platform.",
+        ),
+      },
+      {
+        kind: "DATA_TABLE",
+        payload: table(
+          ["Guarantee", "Detail"],
+          [
+            ["One codebase", "Containerized, open architecture — identical in every deployment model"],
+            ["Org-scoped configuration", "Q & Sub-Q configuration scoped per organization"],
+            ["Isolation", "RBAC & data isolation per organization"],
+            ["Connectivity", "AAG connectors bridge clouds — storage · DB · SFTP · email"],
+            ["Operations", "Central observability, audit & telemetry"],
+            ["Features", "Toggled per organization"],
+          ],
+        ),
+      },
+    ],
+  },
+
   // ── Sheet: Tech Stack ─────────────────────────────────────────────────────
   {
     slug: "tech-stack",

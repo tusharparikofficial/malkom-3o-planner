@@ -4,6 +4,7 @@ import { PageView, usePageData } from "@/app/page-view";
 /** Fallback tab list used until the page loads (matches the seeded sections). */
 const DEFAULT_TABS = [
   { slug: "flow-diagram", label: "Flow Diagram" },
+  { slug: "deployment-model", label: "Client Deployment" },
   { slug: "tech-stack", label: "Tech Stack" },
   { slug: "booking-flow", label: "Booking Flow" },
   { slug: "modules-pages", label: "Modules & Pages" },

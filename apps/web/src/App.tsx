@@ -32,7 +32,7 @@ export function App() {
           <Route path="/solutions/:tab" element={<SolutionsPage />} />
           <Route path="/architecture" element={<Navigate to="/architecture/flow-diagram" replace />} />
           <Route path="/architecture/:tab" element={<ArchitecturePage />} />
-          <Route path="/deployment-model" element={<PageView slug="deployment-model" />} />
+          <Route path="/deployment-model" element={<Navigate to="/architecture/deployment-model" replace />} />
           <Route path="/assembler" element={<AssemblerPage />} />
           <Route
             path="/voice-of-customer"

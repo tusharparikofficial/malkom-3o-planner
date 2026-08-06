@@ -140,10 +140,10 @@
   "approaches": {},
   "timeline": [],
   "kpis": {
-   "approaches.count": "1",
    "options.count": "3",
+   "approaches.count": "1",
+   "milestone.next.days": "40",
    "feedback.open": "1",
-   "milestone.next.days": "41",
    "feedback.resolved": "0"
   },
   "diagrams": {}

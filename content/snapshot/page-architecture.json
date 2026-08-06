@@ -1,18 +1,18 @@
 {
- "id": "cmsh2ffdv0001q9mw8v79t9oa",
+ "id": "cmshitq3u0001gai9ak2vbtxg",
  "slug": "architecture",
  "title": "Architecture & Flow",
  "summary": "Bookings flow, layered architecture & tech stack, modules, roles and core engines — the consolidated MALKOM 3.0 blueprint.",
  "sections": [
   {
-   "id": "cmsh2fffq0003q9mwe1f84x5v",
+   "id": "cmshitq410003gai94fs7ckp7",
    "slug": "flow-diagram",
    "title": "Flow Diagram",
    "description": "Queues → Agentic Queue & STP decision → manual allocation, states, metrics & analytics",
    "order": 0,
    "blocks": [
     {
-     "id": "cmsh2ffhn0005q9mw61iflyc6",
+     "id": "cmshitq480005gai9mkc95xaz",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "![MALKOM 3.0 Framework — bookings flow, system architecture, tech stack, modules, roles and core engines](/architecture-poster.png)"
@@ -25,14 +25,183 @@
    ]
   },
   {
-   "id": "cmsh2ffjk0007q9mwsislachn",
-   "slug": "tech-stack",
-   "title": "Tech Stack",
-   "description": "Layer-by-layer technology choices for MALKOM 3.0",
+   "id": "cmshitq4e0007gai93j65w2p0",
+   "slug": "deployment-model",
+   "title": "Client Deployment",
+   "description": "Multi-tenant provisioning — parent platform → organization setup → deployment structure",
    "order": 1,
    "blocks": [
     {
-     "id": "cmsh2fflg0009q9mwlz3v5pig",
+     "id": "cmshitq4l0009gai9w7jsv5oy",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "![MALKOM 3.0 — Deployment Model: multi-tenant provisioning, parent platform, organization setup and deployment structure options](/deployment-poster.png)"
+     },
+     "order": 0,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmshitq4s000bgai9bvdp6v93",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### 🏢 Organization provisioning — flow\n\nEvery client is an organization (tenant), created and configured from the parent platform."
+     },
+     "order": 1,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmshitq4y000dgai9p6eojr8b",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "1 · Parent Platform",
+        "Central control plane — owns, creates and governs every organization running on MALKOM 3.0. Org management • Platform governance"
+       ],
+       [
+        "2 · Create New Organization",
+        "A new client organization is spun up from the parent platform — an isolated tenant with its own users, data and configuration. Per-org RBAC & data isolation"
+       ],
+       [
+        "3 · Configure Org Requirements",
+        "Per-organization platform setup: Queues — Q & Sub-Q • Deployment structure • Features. The deployment structure is selected here."
+       ]
+      ],
+      "columns": [
+       "Step",
+       "What happens"
+      ]
+     },
+     "order": 2,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmshitq55000fgai9rvob5dei",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### ☁ Deployment structure — options\n\nChosen per organization during configuration — same containerized codebase in every model (open architecture)."
+     },
+     "order": 3,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmshitq5b000hgai9d84rckwd",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "A",
+        "Fully hosted — our cloud",
+        "Main App + Features",
+        "Users — browser / API access only",
+        "Fastest onboarding — we run everything; the client consumes via browser & APIs."
+       ],
+       [
+        "B",
+        "Split — features in client cloud",
+        "Main App",
+        "Features",
+        "Data-heavy features stay inside the client environment (data residency / gravity)."
+       ],
+       [
+        "C",
+        "Fully client-hosted",
+        "Parent platform — governance only",
+        "Main App + Features",
+        "Full sovereignty — platform deployed into the client cloud or on-prem (K8s · MinIO)."
+       ],
+       [
+        "D",
+        "Hybrid mix",
+        "Main App + Features — set 1",
+        "Features — set 2",
+        "Per-feature placement — each feature hosted where it fits best, set at org configuration."
+       ]
+      ],
+      "caption": "One deployment structure is selected per organization",
+      "columns": [
+       "Option",
+       "Model",
+       "Our cloud (WNS)",
+       "Client cloud / on-prem",
+       "Best for"
+      ]
+     },
+     "order": 4,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmshitq5i000jgai945v0g0mk",
+     "kind": "RICH_TEXT",
+     "payload": {
+      "markdown": "### 🛡 Common to every model\n\nThe deployment choice never changes the product — one open, containerized platform."
+     },
+     "order": 5,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    },
+    {
+     "id": "cmshitq5p000lgai9em9nmxqu",
+     "kind": "DATA_TABLE",
+     "payload": {
+      "rows": [
+       [
+        "One codebase",
+        "Containerized, open architecture — identical in every deployment model"
+       ],
+       [
+        "Org-scoped configuration",
+        "Q & Sub-Q configuration scoped per organization"
+       ],
+       [
+        "Isolation",
+        "RBAC & data isolation per organization"
+       ],
+       [
+        "Connectivity",
+        "AAG connectors bridge clouds — storage · DB · SFTP · email"
+       ],
+       [
+        "Operations",
+        "Central observability, audit & telemetry"
+       ],
+       [
+        "Features",
+        "Toggled per organization"
+       ]
+      ],
+      "columns": [
+       "Guarantee",
+       "Detail"
+      ]
+     },
+     "order": 6,
+     "status": "PUBLISHED",
+     "createdById": "cms4ltpj50000tpqxbjl07o7n",
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "cmshitq5v000ngai9asdv420c",
+   "slug": "tech-stack",
+   "title": "Tech Stack",
+   "description": "Layer-by-layer technology choices for MALKOM 3.0",
+   "order": 2,
+   "blocks": [
+    {
+     "id": "cmshitq61000pgai9kgxi874g",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "System architecture — layer-by-layer technology choices for MALKOM 3.0."
@@ -43,7 +212,7 @@
      "children": []
     },
     {
-     "id": "cmsh2ffnc000bq9mwh0kw41fs",
+     "id": "cmshitq68000rgai969elebyb",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -143,14 +312,14 @@
    ]
   },
   {
-   "id": "cmsh2ffp9000dq9mwet9m0cc5",
+   "id": "cmshitq6f000tgai9wsxj25vc",
    "slug": "booking-flow",
    "title": "Booking Flow",
    "description": "How a booking travels through queues, states, statuses and metrics",
-   "order": 2,
+   "order": 3,
    "blocks": [
     {
-     "id": "cmsh2ffr6000fq9mw5u24thoo",
+     "id": "cmshitq6l000vgai9adu1o0b4",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### 📥 Entry point & queue model\n\nWork starts from the list of all open booking requests, organised into queues:"
@@ -161,7 +330,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fft2000hq9mwelznxawr",
+     "id": "cmshitq6s000xgai9lon8gbp7",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -189,7 +358,7 @@
      "children": []
     },
     {
-     "id": "cmsh2ffuz000jq9mw64ky4c2o",
+     "id": "cmshitq6z000zgai9dauv3gy6",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### 🤖 STP decision — All OK?"
@@ -200,7 +369,7 @@
      "children": []
     },
     {
-     "id": "cmsh2ffwv000lq9mwdvmau32z",
+     "id": "cmshitq750011gai9hbwctwn1",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -225,7 +394,7 @@
      "children": []
     },
     {
-     "id": "cmsh2ffyr000nq9mw1y2cmk4h",
+     "id": "cmshitq7c0013gai9uvfe7z85",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### 🏷 States & status"
@@ -236,7 +405,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fg0o000pq9mweyapgbmk",
+     "id": "cmshitq7i0015gai965pud4kd",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -265,7 +434,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fg2l000rq9mwbpfttsd8",
+     "id": "cmshitq7p0017gai9brwvgf6l",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### ⏱ Timestamps & allocation property"
@@ -276,7 +445,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fg46000tq9mwbtqpekes",
+     "id": "cmshitq7w0019gai9oxwbloxi",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -300,7 +469,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fg63000vq9mwnzaol7jp",
+     "id": "cmshitq83001bgai9thkgnysr",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### 📊 Metrics & analytics"
@@ -311,7 +480,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fg7z000xq9mw6y0v15mp",
+     "id": "cmshitq89001dgai942bw4mdo",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -346,14 +515,14 @@
    ]
   },
   {
-   "id": "cmsh2fg9v000zq9mwhn1cx60g",
+   "id": "cmshitq8g001fgai9u0fhlnqc",
    "slug": "modules-pages",
    "title": "Modules & Pages",
    "description": "What each persona sees in the MALKOM 3.0 front end",
-   "order": 3,
+   "order": 4,
    "blocks": [
     {
-     "id": "cmsh2fgbq0011q9mwfeqjw2p4",
+     "id": "cmshitq8n001hgai9grve6djx",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### 👤 User — Offshore / Onshore"
@@ -364,7 +533,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fgdl0013q9mwdfglsljm",
+     "id": "cmshitq8t001jgai9comz0ywe",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -408,7 +577,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fgfg0015q9mwszbcql6m",
+     "id": "cmshitq90001lgai9sind8qii",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### 🛡 Admin"
@@ -419,7 +588,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fghb0017q9mw1ul8xaes",
+     "id": "cmshitq96001ngai9kpmcveyu",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -467,7 +636,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fgj60019q9mw6hocychz",
+     "id": "cmshitq9d001pgai9xkdps10f",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### 👑 Super / Dev / IT Admin\n\nFull platform control — sets up and monitors the core engines listed on the Engines & Allocation tab."
@@ -478,7 +647,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fgl1001bq9mwty46222a",
+     "id": "cmshitq9k001rgai906tyt1ns",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -532,14 +701,14 @@
    ]
   },
   {
-   "id": "cmsh2fgor001dq9mw3aanjdwy",
+   "id": "cmshitq9q001tgai914uds2gj",
    "slug": "engines-allocation",
    "title": "Engines & Allocation",
    "description": "How work gets allocated, and the platform services running underneath",
-   "order": 4,
+   "order": 5,
    "blocks": [
     {
-     "id": "cmsh2fgsh001fq9mw4ic7p1br",
+     "id": "cmshitq9x001vgai93v48562o",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### 🎯 Allocation Matrix"
@@ -550,7 +719,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fgw8001hq9mwavdizwp4",
+     "id": "cmshitqa4001xgai95a7zhj71",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [
@@ -578,7 +747,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fgzy001jq9mwxujfhv6p",
+     "id": "cmshitqaa001zgai9wnyir8af",
      "kind": "RICH_TEXT",
      "payload": {
       "markdown": "### ⚙ Core engines & services"
@@ -589,7 +758,7 @@
      "children": []
     },
     {
-     "id": "cmsh2fh3p001lq9mw7tnxqqo8",
+     "id": "cmshitqah0021gai9297arbeo",
      "kind": "DATA_TABLE",
      "payload": {
       "rows": [

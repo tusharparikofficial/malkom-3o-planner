@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>MALKOM 3.0 Framework — Architecture & Flow poster</title>
+<!--
+  Source of apps/web/public/architecture-poster.png.
+  Re-render after edits:
+    chromium-browser --headless=new --screenshot=poster.png \
+      --window-size=1560,3400 --force-device-scale-factor=2 \
+      --hide-scrollbars file://$(pwd)/poster.html
+  then trim the bottom whitespace (see scripts/render-architecture-poster.sh).
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #fff; }
+  body {
+    width: 1560px;
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #22304a;
+  }
+  .poster { width: 1560px; background: #fff; }
+
+  /* ── header ── */
+  .hd { background: #16263f; color: #fff; padding: 26px 40px 22px; border-bottom: 6px solid #e8a33d; position: relative; }
+  .hd h1 { font-size: 30px; letter-spacing: 1.5px; font-weight: 800; }
+  .hd p { margin-top: 6px; font-size: 13px; color: #b9c6da; }
+  .hd .logo { position: absolute; right: 40px; top: 22px; font-size: 26px; line-height: 0.7; color: #e8a33d; text-align: center; }
+  .hd .logo span { display: block; }
+  .hd .logo .w { color: #7fb0d8; }
+
+  section { padding: 26px 40px 10px; }
+  .sec-title { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .sec-title .num { width: 26px; height: 26px; border-radius: 7px; background: #16263f; color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .sec-title h2 { font-size: 19px; letter-spacing: 0.5px; font-weight: 800; color: #1b2b47; }
+  .sec-sub { font-size: 12px; color: #8494ab; margin: 2px 0 16px 38px; }
+  .rule { border-bottom: 1px solid #e6ebf2; margin: 0 0 16px 38px; }
+
+  /* ── cards ── */
+  .card { background: #fff; border: 1px solid #dfe6ef; border-radius: 12px; box-shadow: 0 1px 3px rgba(20,40,70,.06); padding: 16px 18px; }
+  .card .step { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #8494ab; background: #eef2f7; border-radius: 4px; padding: 2px 7px; display: inline-block; }
+  .card h3 { font-size: 15px; font-weight: 700; margin-top: 3px; color: #1b2b47; }
+  .card .chead { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
+  .ic { width: 34px; height: 34px; border-radius: 50%; flex: 0 0 34px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; font-weight: 700; }
+  .card p { font-size: 11.5px; color: #55657d; line-height: 1.5; }
+  .chips { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-size: 10px; font-weight: 600; border-radius: 20px; padding: 3px 10px; background: #e7edf5; color: #3c5larger; color: #3c5578; }
+  .chip.b { background: #dcebf7; color: #23649c; }
+  .chip.g { background: #dcf2e6; color: #1f7a4d; }
+  .chip.p { background: #eae1f3; color: #6b3fa0; }
+  .chip.o { background: #fdeeda; color: #a96a12; }
+  .chip.r { background: #f9dcdc; color: #b03434; }
+  .chip.navy { background: #16263f; color: #fff; }
+  .pill { font-size: 10px; font-weight: 700; border-radius: 20px; padding: 3px 11px; display: inline-block; }
+  .pill.blue { background: #2e6da4; color: #fff; }
+  .pill.green { background: #2e9e6b; color: #fff; }
+  .pill.purple { background: #7b5ea7; color: #fff; }
+  .pill.red { background: #c0392b; color: #fff; }
+  .pill.orange { background: #e8a33d; color: #fff; }
+  .pill.outline { border: 1.5px solid #2e6da4; color: #2e6da4; background: #fff; }
+  .pill.outline-g { border: 1.5px solid #2e9e6b; color: #2e9e6b; background: #fff; }
+  .pill.outline-o { border: 1.5px solid #e8a33d; color: #a96a12; background: #fff; }
+  .pill.outline-r { border: 1.5px solid #c0392b; color: #c0392b; background: #fff; }
+  .kv { font-size: 11px; color: #55657d; line-height: 1.55; }
+  .kv b { color: #2c3c58; }
+
+  /* ── section 1 absolute canvas ── */
+  .flow { position: relative; height: 940px; margin-left: 0; }
+  .flow .card { position: absolute; }
+  .flow svg.wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .lbl { position: absolute; font-size: 10.5px; font-weight: 700; }
+  .lbl.yes { color: #1f7a4d; }
+  .lbl.no { color: #c07a12; }
+  .diamond { position: absolute; width: 280px; height: 108px; }
+  .diamond .shape { width: 100%; height: 100%; background: #fdf6e3; border: 2px solid #e8a33d; transform: none;
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .diamond b { font-size: 13px; color: #7a5410; }
+  .diamond span { font-size: 9.5px; color: #a98a4a; }
+
+  /* ── section 2 stack ── */
+  .stack { margin-left: 0; }
+  .userbar { width: 620px; margin: 0 auto; background: #eef2f7; border: 1px solid #dfe6ef; border-radius: 40px; padding: 10px 20px; display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; color: #2c3c58; justify-content: center; }
+  .layer { border: 1px solid #dfe6ef; border-radius: 12px; background: #fbfcfe; padding: 14px 20px; display: flex; align-items: center; gap: 18px; box-shadow: 0 1px 3px rgba(20,40,70,.05); }
+  .layer .meta { width: 240px; flex: 0 0 240px; display: flex; gap: 12px; align-items: center; }
+  .layer h4 { font-size: 13px; font-weight: 800; letter-spacing: .5px; color: #1b2b47; }
+  .layer .meta p { font-size: 10.5px; color: #8494ab; margin-top: 2px; }
+  .tag { font-size: 11px; font-weight: 700; border-radius: 18px; padding: 6px 14px; }
+  .tag.b1 { background: #dcebf7; color: #23649c; }
+  .tag.b2 { background: #d9f0ee; color: #1f7a72; }
+  .tag.b3 { background: #eae1f3; color: #6b3fa0; }
+  .tag.b4 { background: #dcf2e6; color: #1f7a4d; }
+  .tag.b5 { background: #e3e9f5; color: #35507e; }
+  .tag.b6 { background: #fdeeda; color: #a96a12; }
+  .tag.b7 { background: #f9dcdc; color: #b03434; }
+  .down { text-align: center; padding: 6px 0; }
+  .svc { border: 1px solid #dfe6ef; border-radius: 12px; background: #fbfcfe; padding: 16px 20px; box-shadow: 0 1px 3px rgba(20,40,70,.05); }
+  .svc-head { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .svc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .svc-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .mini { background: #fff; border: 1px solid #e2e8f1; border-radius: 10px; padding: 12px 14px; }
+  .mini .mh { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .mini h5 { font-size: 12.5px; font-weight: 700; color: #1b2b47; }
+  .mini p { font-size: 10.5px; color: #8494ab; }
+  .mic { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; flex: 0 0 24px; }
+
+  /* ── section 3 ── */
+  .frontui { width: 190px; margin: 0 auto 8px; background: #16263f; color: #fff; border-radius: 24px; padding: 10px 18px; text-align: center; font-weight: 800; font-size: 13px; letter-spacing: .5px; }
+  .persona-wrap { position: relative; padding-top: 34px; }
+  .personas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .persona { border: 1px solid #dfe6ef; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(20,40,70,.06); background: #fff; }
+  .phead { padding: 12px 16px; color: #fff; font-weight: 800; font-size: 13.5px; display: flex; align-items: center; gap: 10px; }
+  .phead .sub { display: flex; gap: 6px; }
+  .phead .sub span { font-size: 8.5px; background: rgba(255,255,255,.22); padding: 2px 8px; border-radius: 12px; font-weight: 700; letter-spacing: .5px; }
+  .persona ol { list-style: none; padding: 12px 14px; }
+  .persona li { display: flex; gap: 9px; font-size: 10.8px; color: #445572; line-height: 1.45; padding: 4.5px 0; }
+  .persona li .n { flex: 0 0 20px; height: 20px; border-radius: 6px; background: #eef2f7; color: #4a5d7c; font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .engines { background: #16263f; border-radius: 14px; padding: 20px 24px; margin-top: 22px; }
+  .engines .eh { display: flex; gap: 12px; align-items: center; margin-bottom: 6px; }
+  .engines h3 { color: #fff; font-size: 15px; font-weight: 800; letter-spacing: .5px; }
+  .engines .es { color: #8fa2bd; font-size: 11px; margin-bottom: 14px; margin-left: 46px; margin-top: -4px; }
+  .echips { display: flex; flex-wrap: wrap; gap: 9px; }
+  .echip { background: #24385a; border: 1px solid #35507e; color: #dbe6f5; font-size: 11px; font-weight: 600; border-radius: 20px; padding: 7px 15px; }
+
+  .ft { display: flex; justify-content: space-between; border-top: 1px solid #e6ebf2; margin: 18px 40px 0; padding: 14px 0 26px; font-size: 10px; color: #9aa8bd; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <div class="hd">
+    <h1>MALKOM 3.0 FRAMEWORK</h1>
+    <p>Bookings Flow • System Architecture • Tech Stack — consolidated brainstorm blueprint</p>
+    <div class="logo"><span>▲</span><span class="w">▲</span></div>
+  </div>
+
+  <!-- ── 1 · BOOKINGS FLOW ── -->
+  <section>
+    <div class="sec-title"><div class="num">1</div><h2>BOOKINGS — FLOW</h2></div>
+    <div class="sec-sub">Queues → Agentic Queue &amp; STP decision → manual allocation, states, metrics &amp; analytics</div>
+    <div class="rule"></div>
+
+    <div class="flow">
+      <svg class="wires" viewBox="0 0 1480 940">
+        <defs>
+          <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#3b7dc4"/></marker>
+          <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2e9e6b"/></marker>
+          <marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e8a33d"/></marker>
+        </defs>
+        <!-- row 1 arrows -->
+        <line x1="446" y1="105" x2="492" y2="105" stroke="#3b7dc4" stroke-width="2.5" marker-end="url(#ab)"/>
+        <line x1="938" y1="105" x2="984" y2="105" stroke="#3b7dc4" stroke-width="2.5" marker-end="url(#ab)"/>
+        <!-- agentic queue → diamond -->
+        <line x1="1215" y1="212" x2="1215" y2="256" stroke="#e8a33d" stroke-width="2.5" marker-end="url(#ao)"/>
+        <!-- diamond NO → work allocation -->
+        <line x1="1215" y1="366" x2="1215" y2="412" stroke="#e8a33d" stroke-width="2.5" marker-end="url(#ao)"/>
+        <!-- diamond YES → left rail → track & measure -->
+        <polyline points="1073,311 16,311 16,700 30,700" fill="none" stroke="#2e9e6b" stroke-width="2.5" marker-end="url(#ag)"/>
+        <!-- work allocation → booking states → workflow transaction -->
+        <line x1="984" y1="490" x2="938" y2="490" stroke="#3b7dc4" stroke-width="2.5" marker-end="url(#ab)"/>
+        <line x1="492" y1="490" x2="446" y2="490" stroke="#3b7dc4" stroke-width="2.5" marker-end="url(#ab)"/>
+        <!-- workflow transaction ↓ track & measure -->
+        <line x1="120" y1="596" x2="120" y2="636" stroke="#3b7dc4" stroke-width="2.5" marker-end="url(#ab)"/>
+        <!-- track & measure → analytics -->
+        <line x1="726" y1="780" x2="772" y2="780" stroke="#2e9e6b" stroke-width="2.5" marker-end="url(#ag)"/>
+      </svg>
+
+      <div class="card" style="left:30px; top:40px; width:416px; min-height:172px;">
+        <div class="chead"><div class="ic" style="background:#2e6da4;">☰</div>
+          <div><span class="step">STEP 1</span><h3>Intake</h3></div></div>
+        <p>List of all open booking requests — the single worklist every task starts from.</p>
+        <div class="chips"><span class="chip b">Open bookings worklist</span></div>
+      </div>
+
+      <div class="card" style="left:522px; top:40px; width:416px; min-height:172px;">
+        <div class="chead"><div class="ic" style="background:#1f7a72;">≣</div>
+          <div><span class="step">STEP 2</span><h3>Queue Model — Q &amp; Sub-Q</h3></div></div>
+        <p class="kv"><b style="color:#1f7a4d;">Q</b>&nbsp;&nbsp;Parent queue — e.g. Booking, BOL Creation, Support<br/>
+          <b style="color:#1f7a4d;">Sub-Q</b>&nbsp;&nbsp;Child queue — Booking: New, Amendment… • BOL: BL Draft, BL Rating…</p>
+        <div class="chips"><span class="chip g">Booking</span><span class="chip g">BOL Creation</span><span class="chip g">Support</span></div>
+      </div>
+
+      <div class="card" style="left:1014px; top:40px; width:436px; min-height:172px;">
+        <div class="chead"><div class="ic" style="background:#7b5ea7;">🤖</div>
+          <div><span class="step">STEP 3</span><h3>Agentic Queue</h3></div></div>
+        <p>Tasks from Q / Sub-Q land in the Agentic Queue first — the Agentic Framework attempts automated straight-through processing before any manual touch.</p>
+        <div class="chips"><span class="chip p">Agentic Framework</span><span class="chip p">Auto validation &amp; processing</span></div>
+      </div>
+
+      <div class="lbl yes" style="left:270px; top:288px;">YES — auto-processed (STP), no manual allocation</div>
+      <div class="lbl no" style="left:1240px; top:380px;">NO — manual handling</div>
+
+      <div class="diamond" style="left:1075px; top:257px;">
+        <div class="shape"><b>STP — All OK ?</b><span>Straight-Through Processing check</span></div>
+      </div>
+
+      <div class="card" style="left:1014px; top:414px; width:436px; min-height:182px;">
+        <div class="chead"><div class="ic" style="background:#e8a33d;">▷</div>
+          <div><span class="step">STEP 4</span><h3>Work Allocation</h3></div></div>
+        <p>Non-STP tasks are routed for manual handling — the Work Allocation Engine runs the Allocation Matrix on:</p>
+        <div class="chips">
+          <span class="chip o">Country</span><span class="chip o">Region</span><span class="chip o">Office</span>
+          <span class="chip o">Q</span><span class="chip o">Sub-Q</span><span class="chip o">Task states</span><span class="chip o">Capacity</span>
+        </div>
+        <p style="margin-top:8px;">+ pseudo props → rule-based allocation on any Q × Sub-Q combination</p>
+      </div>
+
+      <div class="card" style="left:522px; top:414px; width:416px; min-height:182px;">
+        <div class="chead"><div class="ic" style="background:#c98f1f;">◔</div>
+          <div><span class="step">STEP 5</span><h3>Booking States</h3></div></div>
+        <div class="chips" style="margin-top:2px;">
+          <span class="pill blue">NEW</span><span class="pill orange">AMENDMENT</span><span class="pill purple">SPLIT</span>
+          <span class="pill red">CANCELLED</span><span class="pill" style="background:#2e6da4;color:#fff;">CONFIRMED</span>
+        </div>
+        <p style="margin-top:10px;">Every incoming request is classified into one of these booking states.</p>
+      </div>
+
+      <div class="card" style="left:30px; top:414px; width:416px; min-height:182px;">
+        <div class="chead"><div class="ic" style="background:#2e6da4;">↻</div>
+          <div><span class="step">STEP 6</span><h3>Workflow Transaction</h3></div></div>
+        <p style="font-size:9.5px; letter-spacing:1px; color:#8494ab; font-weight:700;">STATES</p>
+        <div class="chips" style="margin-top:4px;">
+          <span class="pill outline">INDEXED (REGISTERED)</span><span class="pill outline-g">PROCESSED</span>
+          <span class="pill outline-o">PARKED</span><span class="pill outline-r">QUERY</span>
+        </div>
+        <p style="font-size:9.5px; letter-spacing:1px; color:#8494ab; font-weight:700; margin-top:8px;">STATUS</p>
+        <div class="chips" style="margin-top:4px;">
+          <span class="pill outline-o">OPEN</span><span class="pill outline">WIP</span><span class="pill outline-g">CLOSED</span>
+        </div>
+        <p style="margin-top:8px;">Every state + status combination carries its own timestamp.</p>
+      </div>
+
+      <div class="card" style="left:30px; top:638px; width:696px; min-height:250px;">
+        <div class="chead"><div class="ic" style="background:#1f7a4d;">◷</div>
+          <div><span class="step">STEP 7</span><h3>Track &amp; Measure</h3></div></div>
+        <p class="kv"><b>WF allocation property</b><br/>Allocate To • When (timestamp) • Trans Start • Trans Touch • Trans End</p>
+        <p class="kv" style="margin-top:9px;"><b style="color:#1f7a4d;">●</b> <b>Task metrics:</b>&nbsp; AHT • TAT (states) • TAT (overall)</p>
+        <p class="kv" style="margin-top:5px;"><b style="color:#1f7a4d;">●</b> <b>Q metrics:</b>&nbsp; BK TAT • BK Aging</p>
+        <p class="kv" style="margin-top:5px;"><b style="color:#1f7a4d;">●</b> <b>Audit log:</b>&nbsp; Task change • Update history (new/old) • Event state</p>
+        <p style="margin-top:10px; color:#1f7a4d; font-weight:600;">Both STP and manually worked tasks converge here — every task is tracked.</p>
+      </div>
+
+      <div class="card" style="left:774px; top:638px; width:676px; min-height:250px;">
+        <div class="chead"><div class="ic" style="background:#2e9e6b;">✦</div>
+          <div><span class="step">STEP 8</span><h3>Analytics</h3></div></div>
+        <p>Dashboards &amp; insight built on every tracked metric and audit event.</p>
+        <div class="chips" style="margin-top:10px;">
+          <span class="chip g">My Performance Dashboard — user</span>
+          <span class="chip g">Realtime Q &amp; Sub-Q Dashboard — admin</span>
+        </div>
+        <div class="chips">
+          <span class="chip g">SLA • volume • aging trends</span>
+          <span class="chip g">Audit &amp; update history</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2 · SYSTEM ARCHITECTURE & TECH STACK ── -->
+  <section>
+    <div class="sec-title"><div class="num">2</div><h2>SYSTEM ARCHITECTURE &amp; TECH STACK</h2></div>
+    <div class="sec-sub">Layered view — front end to services, with the technology behind each layer</div>
+    <div class="rule"></div>
+
+    <div class="stack">
+      <div class="userbar"><span class="mic" style="background:#2c3c58;">👥</span> Users — Offshore / Onshore • Admins • Super / Dev / IT Admins</div>
+      <div class="down"><svg width="16" height="20"><path d="M8 0 v12 M2 10 l6 8 6-8" stroke="#2c3c58" stroke-width="2.5" fill="none"/></svg></div>
+
+      <div class="layer">
+        <div class="meta"><span class="ic" style="background:#2e6da4;">🖥</span><div><h4>FRONT END</h4><p>User &amp; admin experience</p></div></div>
+        <span class="tag b1">React + Radix + shadcn/ui</span><span class="tag b2">TailwindCSS</span><span class="tag b3">Material Icons</span>
+      </div>
+      <div class="down"><svg width="16" height="20"><path d="M8 0 v12 M2 10 l6 8 6-8" stroke="#2c3c58" stroke-width="2.5" fill="none"/></svg></div>
+
+      <div class="layer">
+        <div class="meta"><span class="ic" style="background:#1f7a72;">&lt;/&gt;</span><div><h4>API STACK</h4><p>Typed, contract-first APIs</p></div></div>
+        <span class="tag b1">TypeScript / Vite</span><span class="tag b4">Node.js (npm)</span><span class="tag b3">PostgREST + Prisma + Zod</span>
+      </div>
+      <div class="down"><svg width="16" height="20"><path d="M8 0 v12 M2 10 l6 8 6-8" stroke="#2c3c58" stroke-width="2.5" fill="none"/></svg></div>
+
+      <div class="layer">
+        <div class="meta"><span class="ic" style="background:#e8a33d;">⚡</span><div><h4>CACHE</h4><p>In-memory cache between API and data</p></div></div>
+        <span class="tag b6">Valkey</span>
+      </div>
+      <div class="down"><svg width="16" height="20"><path d="M8 0 v12 M2 10 l6 8 6-8" stroke="#2c3c58" stroke-width="2.5" fill="none"/></svg></div>
+
+      <div class="layer">
+        <div class="meta"><span class="ic" style="background:#2c3c58;">🗄</span><div><h4>DATA / BACKEND</h4><p>PostgreSQL core + vector search</p></div></div>
+        <span class="tag b5">Postgres — Transaction DB (primary + secondary failover)</span>
+        <span class="tag b5">Postgres — MDM instance</span>
+        <span class="tag b7">Vector DB</span>
+      </div>
+      <div class="down"><svg width="16" height="20"><path d="M8 0 v12 M2 10 l6 8 6-8" stroke="#2c3c58" stroke-width="2.5" fill="none"/></svg></div>
+
+      <div class="svc">
+        <div class="svc-head"><span class="ic" style="background:#c0392b;">✳</span><div><h4>SERVICES</h4><p style="font-size:10.5px;color:#8494ab;">Shared platform capabilities</p></div></div>
+        <div class="svc-grid">
+          <div class="mini">
+            <div class="mh"><span class="mic" style="background:#2e6da4;">☁</span><h5>File Storage</h5></div>
+            <div class="chips"><span class="chip o">AWS S3</span><span class="chip b">Azure Blob</span><span class="chip g">GCP Storage</span><span class="chip r">On-Prem — MinIO</span></div>
+          </div>
+          <div class="mini">
+            <div class="mh"><span class="mic" style="background:#1f7a72;">&lt;/&gt;</span><h5>Connectors &amp; Adapters</h5></div>
+            <div class="chips"><span class="chip">Cloud providers — AAG</span><span class="chip">Storage connectors</span><span class="chip">DB storage connectors</span><span class="chip">DB adapters</span><span class="chip">SFTP</span><span class="chip">Email</span></div>
+          </div>
+        </div>
+        <div class="svc-grid3">
+          <div class="mini"><div class="mh"><span class="mic" style="background:#7b5ea7;">🤖</span><h5>Agentic Framework</h5></div><p>Agent runtime for automation across the platform</p></div>
+          <div class="mini"><div class="mh"><span class="mic" style="background:#2e9e6b;">✚</span><h5>Observability</h5></div><p>In-built DB logs • cloud logs</p></div>
+          <div class="mini"><div class="mh"><span class="mic" style="background:#c0392b;">◉</span><h5>ML Platform</h5></div><p>ML framework • deployment &amp; training environment</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3 · MODULES, ROLES & PAGES ── -->
+  <section>
+    <div class="sec-title"><div class="num">3</div><h2>MODULES, ROLES &amp; PAGES</h2></div>
+    <div class="sec-sub">What each persona sees — plus the core engines running underneath</div>
+    <div class="rule"></div>
+
+    <div class="frontui">🖥&nbsp; FRONT (UI)</div>
+    <div class="down"><svg width="700" height="30"><path d="M350 0 v10 M60 10 H640 M60 10 v10 M350 10 v10 M640 10 v10 M54 18 l6 9 6-9 M344 18 l6 9 6-9 M634 18 l6 9 6-9" stroke="#2c3c58" stroke-width="2.5" fill="none"/></svg></div>
+
+    <div class="personas">
+      <div class="persona">
+        <div class="phead" style="background:#3a76b3;">👤 USER <span class="sub"><span>OFFSHORE</span><span>ONSHORE</span></span></div>
+        <ol>
+          <li><span class="n">1</span>My Task / My Q — action on list</li>
+          <li><span class="n">2</span>Task detail (Q state / workflow state &amp; status) — action on task</li>
+          <li><span class="n">3</span>Search tasks &amp; edit all items (role-based)</li>
+          <li><span class="n">4</span>My performance dashboard</li>
+          <li><span class="n">5</span>Edit booking queue information across the life cycle</li>
+          <li><span class="n">6</span>Exit task status updates — transfer, query creation (query life cycle)</li>
+          <li><span class="n">7</span>Task life cycle</li>
+        </ol>
+      </div>
+      <div class="persona">
+        <div class="phead" style="background:#279a71;">🛡 ADMIN</div>
+        <ol>
+          <li><span class="n">1</span>Admin dashboard — real-time status of every Q &amp; Sub-Q (volume, allocation, status)</li>
+          <li><span class="n">2a</span>Offshore user profiling — creation, activation, roles, Q &amp; capacity mgmt. + backup profiling</li>
+          <li><span class="n">2b</span>Onshore user profiling — creation, activation, roles, Q &amp; capacity mgmt.</li>
+          <li><span class="n">3</span>Search tasks not assigned (role-based)</li>
+          <li><span class="n">4</span>Admin search — everything</li>
+          <li><span class="n">5</span>Rules setup — Q (field &amp; combination based) / Sub-Q / task / validity → approval based</li>
+          <li><span class="n">6</span>Template creation — driven by the state of the Q or task</li>
+          <li><span class="n">7</span>Exception lists — country / region / Q; create &amp; maintain maps for onshore &amp; offshore departments</li>
+        </ol>
+      </div>
+      <div class="persona">
+        <div class="phead" style="background:#16263f;">👑 SUPER / DEV / IT ADMIN</div>
+        <ol>
+          <li><span class="n">★</span>Everything available to User + Admin</li>
+          <li><span class="n">1</span>Dev configs / app settings</li>
+          <li><span class="n">Q</span>Q creation, modification &amp; management</li>
+          <li><span class="n">M</span>Monitoring — audit logs, invariant behaviour alerts, SLA resource metrics (h/w &amp; s/w)</li>
+          <li><span class="n">DB</span>DB access management</li>
+          <li><span class="n">ML</span>ML pipeline creation, setup &amp; deps • monitor pipeline (classification / categorisation)</li>
+          <li><span class="n">API</span>API management — incoming (from client) &amp; outgoing (to client)</li>
+          <li><span class="n">🔑</span>API key vault management</li>
+          <li><span class="n">$</span>Billing &amp; parent data mgmt. — patterns by Q / Sub-Q / task, SLA clauses &amp; rewards</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="engines">
+      <div class="eh"><span class="ic" style="background:#24385a; border:1px solid #35507e;">✳</span><h3>CORE ENGINES &amp; SERVICES</h3></div>
+      <div class="es">Platform capabilities set up &amp; monitored by Super / Dev / IT admins</div>
+      <div class="echips">
+        <span class="echip">Validation Engine</span>
+        <span class="echip">Work Allocation Engine — rules for Allocation Matrix</span>
+        <span class="echip">Agentic Setup &amp; Monitoring</span>
+        <span class="echip">RBAC / Identity Auth — OFA · UP · SSO</span>
+        <span class="echip">Workflow Management</span>
+        <span class="echip">Metrics Engine — task · Q · audit metrics</span>
+        <span class="echip">Document / File Mgmt — storage &amp; events</span>
+        <span class="echip">Email Management Service</span>
+        <span class="echip">SFTP — client data in / out</span>
+        <span class="echip">Master Data Management</span>
+        <span class="echip">AI Provider Mgmt — usage &amp; maintenance</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="ft">
+    <span>MALKOM 3.0 — brainstorm workbook | review inputs (06-Aug-2026)</span>
+    <span>Architecture • Flow • Tech Stack</span>
+  </div>
+</div>
+</body>
+</html>

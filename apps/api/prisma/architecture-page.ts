@@ -30,7 +30,8 @@ export const ARCHITECTURE_SECTIONS: SectionSeed[] = [
   {
     slug: "flow-diagram",
     title: "Flow Diagram",
-    description: "Bookings flow • layered architecture & tech stack • modules, roles and core engines",
+    description:
+      "Queues → Agentic Queue & STP decision → manual allocation, states, metrics & analytics",
     blocks: [
       {
         kind: "RICH_TEXT",
@@ -62,7 +63,7 @@ export const ARCHITECTURE_SECTIONS: SectionSeed[] = [
             ["🔌 API stack", "TypeScript / Vite", "—"],
             ["🔌 API stack", "Node.js", "As npm"],
             ["🔌 API stack", "PostgREST + Prisma + Zod", "—"],
-            ["⚡ Cache", "Cache layer", "Identified as its own layer — components to be detailed"],
+            ["⚡ Cache", "Valkey", "In-memory cache between API and data"],
             ["🗄 Data / backend", "PostgreSQL", "Transaction and MDM instances"],
             ["🗄 Data / backend", "Transaction DB", "Primary and secondary failovers"],
             ["🗄 Data / backend", "Vector DB", "—"],
@@ -101,12 +102,31 @@ export const ARCHITECTURE_SECTIONS: SectionSeed[] = [
         payload: table(
           ["Concept", "Definition"],
           [
-            ["Q (parent queue)", "The parent queue — e.g. Booking or BOL Creation."],
+            ["Q (parent queue)", "The parent queue — e.g. Booking, BOL Creation or Support."],
             [
               "Sub-Q (child queue)",
               "The child queue under a Q — in Booking: New, Amendment… • in BOL Creation: BL Draft, BL Rating…",
             ],
+            [
+              "Agentic Queue",
+              "Tasks from Q / Sub-Q land in the Agentic Queue first — the Agentic Framework attempts automated straight-through processing before any manual touch.",
+            ],
           ],
+        ),
+      },
+      { kind: "RICH_TEXT", payload: md("### 🤖 STP decision — All OK?") },
+      {
+        kind: "DATA_TABLE",
+        payload: table(
+          ["Outcome", "What happens"],
+          [
+            ["YES", "Auto-processed (STP) — no manual allocation; the task goes straight to Track & Measure."],
+            [
+              "NO",
+              "Manual handling — the task is routed to the Work Allocation Engine, which runs the Allocation Matrix.",
+            ],
+          ],
+          "Straight-Through Processing check — every task passes through it after the Agentic Queue",
         ),
       },
       { kind: "RICH_TEXT", payload: md("### 🏷 States & status") },
@@ -136,7 +156,7 @@ export const ARCHITECTURE_SECTIONS: SectionSeed[] = [
           ],
         ),
       },
-      { kind: "RICH_TEXT", payload: md("### 📊 Metrics") },
+      { kind: "RICH_TEXT", payload: md("### 📊 Metrics & analytics") },
       {
         kind: "DATA_TABLE",
         payload: table(
@@ -145,7 +165,12 @@ export const ARCHITECTURE_SECTIONS: SectionSeed[] = [
             ["Task metrics", "AHT • TAT (states) • TAT (overall)"],
             ["Q metrics", "BK TAT • BK Aging"],
             ["Audit log metrics", "Task change • Update history (new / old value) • Event state"],
+            [
+              "Analytics",
+              "My Performance Dashboard — user • Realtime Q & Sub-Q Dashboard — admin • SLA / volume / aging trends • Audit & update history",
+            ],
           ],
+          "Both STP and manually worked tasks converge in Track & Measure — every task is tracked",
         ),
       },
     ],
@@ -252,7 +277,10 @@ export const ARCHITECTURE_SECTIONS: SectionSeed[] = [
               "Pseudo properties",
               "Every Q comes with additional props → rule-based allocation on any combination of Q and Sub-Q properties",
             ],
-            ["Run by", "Work Allocation Engine — executes the rules for the Allocation Matrix"],
+            [
+              "Run by",
+              "Work Allocation Engine — non-STP tasks are routed here for manual handling; it executes the rules for the Allocation Matrix",
+            ],
           ],
         ),
       },
@@ -267,6 +295,7 @@ export const ARCHITECTURE_SECTIONS: SectionSeed[] = [
             ["Agentic Setup & Monitoring", "—"],
             ["RBAC / Identity Auth", "OFA / UP / SSO setup"],
             ["Workflow Management", "—"],
+            ["Metrics Engine", "Task · Q · audit metrics"],
             ["Document / File Management", "Storage / events"],
             ["Email Management Service", "—"],
             ["SFTP", "Client data input or output"],

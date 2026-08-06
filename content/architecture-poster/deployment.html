@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>MALKOM 3.0 — Deployment Model poster</title>
+<!--
+  Source of apps/web/public/deployment-poster.png.
+  Re-render: scripts/render-deployment-poster.sh
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #fff; }
+  body { width: 1560px; font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: #22304a; }
+  .poster { width: 1560px; background: #fff; }
+
+  .hd { background: #16263f; color: #fff; padding: 30px 44px 26px; border-bottom: 6px solid #e8a33d; position: relative; }
+  .hd h1 { font-size: 32px; letter-spacing: 1px; font-weight: 800; }
+  .hd p { margin-top: 8px; font-size: 14px; color: #b9c6da; }
+  .hd .logo { position: absolute; right: 44px; top: 26px; font-size: 26px; line-height: .72; color: #e8a33d; text-align: center; }
+  .hd .logo span { display: block; }
+  .hd .logo .w { color: #7fb0d8; }
+
+  section { padding: 30px 44px 8px; }
+  .sec-title { display: flex; align-items: center; gap: 13px; }
+  .sec-title .num { width: 28px; height: 28px; border-radius: 8px; background: #16263f; color: #fff; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .sec-title h2 { font-size: 21px; letter-spacing: .5px; font-weight: 800; color: #1b2b47; }
+  .sec-sub { font-size: 12.5px; color: #8494ab; margin: 4px 0 16px 41px; }
+  .rule { border-bottom: 1px solid #e6ebf2; margin: 0 0 20px 41px; }
+
+  .card { background: #fff; border: 1px solid #dfe6ef; border-radius: 12px; box-shadow: 0 1px 3px rgba(20,40,70,.06); padding: 18px 20px; }
+  .step { font-size: 9.5px; font-weight: 700; letter-spacing: 1px; color: #8494ab; background: #eef2f7; border-radius: 4px; padding: 2px 8px; display: inline-block; }
+  .card h3 { font-size: 16px; font-weight: 700; margin-top: 3px; color: #1b2b47; }
+  .chead { display: flex; gap: 13px; align-items: flex-start; margin-bottom: 10px; }
+  .ic { width: 36px; height: 36px; border-radius: 50%; flex: 0 0 36px; display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; }
+  .card p { font-size: 12px; color: #55657d; line-height: 1.55; }
+  .chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip { font-size: 10.5px; font-weight: 600; border-radius: 20px; padding: 4px 12px; background: #e7edf5; color: #3c5578; }
+  .chip.b { background: #dcebf7; color: #23649c; }
+  .chip.g { background: #dcf2e6; color: #1f7a4d; }
+
+  .flowrow { display: grid; grid-template-columns: 1fr 44px 1fr 44px 1fr; align-items: stretch; gap: 0; }
+  .arr { display: flex; align-items: center; justify-content: center; }
+
+  .selbar { width: 300px; margin: 0 auto 6px; background: #16263f; color: #fff; border-radius: 22px; padding: 9px 18px; text-align: center; font-weight: 800; font-size: 12px; letter-spacing: .8px; }
+  .options { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 18px; margin-top: 4px; }
+  .opt { border: 1px solid #dfe6ef; border-radius: 12px; box-shadow: 0 1px 3px rgba(20,40,70,.06); padding: 16px; background: #fff; display: flex; flex-direction: column; }
+  .optlbl { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: #fff; border-radius: 14px; padding: 4px 12px; display: inline-block; width: fit-content; }
+  .opt h3 { font-size: 14.5px; font-weight: 700; color: #1b2b47; margin: 8px 0 12px; }
+  .zone { border-radius: 10px; padding: 12px 13px; margin-bottom: 10px; }
+  .zone.ours { background: #e9f1fa; border: 1px solid #cadcef; }
+  .zone.client { background: #e4f3ec; border: 1px solid #c4e2d3; }
+  .zone.ghost { background: #fbfcfe; border: 1.5px dashed #c4cedb; }
+  .zh { font-size: 10px; font-weight: 800; letter-spacing: .8px; color: #44597a; display: flex; align-items: center; gap: 7px; margin-bottom: 9px; }
+  .zone.client .zh { color: #1f7a4d; }
+  .dot { width: 14px; height: 10px; border-radius: 6px; background: #3a76b3; }
+  .zone.client .dot { background: #279a71; }
+  .zone.ghost .dot { background: #9aa8bd; }
+  .zpills { display: flex; flex-wrap: wrap; gap: 7px; }
+  .zp { font-size: 10.5px; font-weight: 700; border-radius: 16px; padding: 5px 13px; }
+  .zp.navy { background: #16263f; color: #fff; }
+  .zp.pur { background: #7b5ea7; color: #fff; }
+  .zp.outline { background: #fff; border: 1.5px solid #16263f; color: #16263f; }
+  .zone p { font-size: 10.8px; color: #6a7a92; }
+  .optfoot { font-size: 10.8px; color: #6a7a92; line-height: 1.5; margin-top: auto; padding-top: 4px; }
+  .xfer { text-align: center; margin: -6px 0 4px; color: #8494ab; font-size: 11px; }
+
+  .common { background: #16263f; border-radius: 14px; padding: 24px 28px; margin: 26px 44px 0; }
+  .common .eh { display: flex; gap: 13px; align-items: center; }
+  .common h3 { color: #fff; font-size: 16px; font-weight: 800; letter-spacing: .5px; }
+  .common .es { color: #8fa2bd; font-size: 12px; margin: 4px 0 16px 49px; }
+  .echips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .echip { background: #24385a; border: 1px solid #35507e; color: #dbe6f5; font-size: 11.5px; font-weight: 600; border-radius: 20px; padding: 8px 17px; }
+
+  .ft { display: flex; justify-content: space-between; border-top: 1px solid #e6ebf2; margin: 24px 44px 0; padding: 15px 0 28px; font-size: 10.5px; color: #9aa8bd; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <div class="hd">
+    <h1>MALKOM 3.0 — DEPLOYMENT MODEL</h1>
+    <p>Multi-tenant provisioning — parent platform → organization setup → deployment structure</p>
+    <div class="logo"><span>▲</span><span class="w">▲</span></div>
+  </div>
+
+  <section>
+    <div class="sec-title"><div class="num">1</div><h2>ORGANIZATION PROVISIONING — FLOW</h2></div>
+    <div class="sec-sub">Every client is an organization (tenant), created and configured from the parent platform</div>
+    <div class="rule"></div>
+
+    <div class="flowrow">
+      <div class="card">
+        <div class="chead"><div class="ic" style="background:#16263f;">♔</div>
+          <div><span class="step">STEP 1</span><h3>Parent Platform</h3></div></div>
+        <p>Central control plane — owns, creates and governs every organization running on MALKOM 3.0.</p>
+        <div class="chips"><span class="chip">Org management</span><span class="chip">Platform governance</span></div>
+      </div>
+      <div class="arr"><svg width="34" height="16"><path d="M0 8 h24 M22 2 l8 6 -8 6" stroke="#3b7dc4" stroke-width="2.5" fill="none"/></svg></div>
+      <div class="card">
+        <div class="chead"><div class="ic" style="background:#3a76b3;">👥</div>
+          <div><span class="step">STEP 2</span><h3>Create New Organization</h3></div></div>
+        <p>A new client organization is spun up from the parent platform — an isolated tenant with its own users, data and configuration.</p>
+        <div class="chips"><span class="chip b">Per-org RBAC &amp; data isolation</span></div>
+      </div>
+      <div class="arr"><svg width="34" height="16"><path d="M0 8 h24 M22 2 l8 6 -8 6" stroke="#3b7dc4" stroke-width="2.5" fill="none"/></svg></div>
+      <div class="card">
+        <div class="chead"><div class="ic" style="background:#279a71;">✳</div>
+          <div><span class="step">STEP 3</span><h3>Configure Org Requirements</h3></div></div>
+        <p>Per-organization platform setup:</p>
+        <div class="chips"><span class="chip g">Queues — Q &amp; Sub-Q</span><span class="chip g">Deployment structure</span><span class="chip g">Features</span></div>
+        <p style="margin-top:10px;">Deployment structure is selected here — options below.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title"><div class="num">2</div><h2>DEPLOYMENT STRUCTURE — OPTIONS</h2></div>
+    <div class="sec-sub">Chosen per organization during configuration — same containerized codebase in every model (open architecture)</div>
+    <div class="rule"></div>
+
+    <div class="selbar">SELECT ONE PER ORGANIZATION</div>
+    <div style="text-align:center;">
+      <svg width="1180" height="34"><path d="M590 0 v8 M30 8 H1150 M30 8 v14 M403 8 v14 M777 8 v14 M1150 8 v14 M22 20 l8 12 8-12 M395 20 l8 12 8-12 M769 20 l8 12 8-12 M1142 20 l8 12 8-12" stroke="#2c3c58" stroke-width="2.5" fill="none"/></svg>
+    </div>
+
+    <div class="options">
+      <div class="opt">
+        <span class="optlbl" style="background:#3a76b3;">OPTION A</span>
+        <h3>Fully hosted — our cloud</h3>
+        <div class="zone ours">
+          <div class="zh"><span class="dot"></span> OUR CLOUD (WNS)</div>
+          <div class="zpills"><span class="zp navy">Main App</span><span class="zp pur">Features</span></div>
+        </div>
+        <div class="zone ghost">
+          <div class="zh"><span class="dot"></span> CLIENT CLOUD / ON-PREM</div>
+          <p>Users — browser / API access</p>
+        </div>
+        <div class="optfoot">Fastest onboarding — we run everything; the client consumes via browser &amp; APIs.</div>
+      </div>
+
+      <div class="opt">
+        <span class="optlbl" style="background:#279a71;">OPTION B</span>
+        <h3>Split — features in client cloud</h3>
+        <div class="zone ours">
+          <div class="zh"><span class="dot"></span> OUR CLOUD (WNS)</div>
+          <div class="zpills"><span class="zp navy">Main App</span></div>
+        </div>
+        <div class="xfer">⇅</div>
+        <div class="zone client">
+          <div class="zh"><span class="dot"></span> CLIENT CLOUD / ON-PREM</div>
+          <div class="zpills"><span class="zp pur">Features</span></div>
+        </div>
+        <div class="optfoot">Data-heavy features stay inside the client environment (data residency / gravity).</div>
+      </div>
+
+      <div class="opt">
+        <span class="optlbl" style="background:#2e8f4f;">OPTION C</span>
+        <h3>Fully client-hosted</h3>
+        <div class="zone ours">
+          <div class="zh"><span class="dot"></span> OUR CLOUD (WNS)</div>
+          <div class="zpills"><span class="zp outline">Parent platform — governance</span></div>
+        </div>
+        <div class="zone client">
+          <div class="zh"><span class="dot"></span> CLIENT CLOUD / ON-PREM</div>
+          <div class="zpills"><span class="zp navy">Main App</span><span class="zp pur">Features</span></div>
+        </div>
+        <div class="optfoot">Full sovereignty — platform deployed into the client cloud or on-prem (K8s · MinIO).</div>
+      </div>
+
+      <div class="opt">
+        <span class="optlbl" style="background:#7b5ea7;">OPTION D</span>
+        <h3>Hybrid mix</h3>
+        <div class="zone ours">
+          <div class="zh"><span class="dot"></span> OUR CLOUD (WNS)</div>
+          <div class="zpills"><span class="zp navy">Main App</span><span class="zp pur">Features — set 1</span></div>
+        </div>
+        <div class="xfer">⇅</div>
+        <div class="zone client">
+          <div class="zh"><span class="dot"></span> CLIENT CLOUD / ON-PREM</div>
+          <div class="zpills"><span class="zp pur">Features — set 2</span></div>
+        </div>
+        <div class="optfoot">Per-feature placement — each feature hosted where it fits best, set at org configuration.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="common">
+    <div class="eh"><span class="ic" style="background:#24385a; border:1px solid #35507e;">🛡</span><h3>COMMON TO EVERY MODEL</h3></div>
+    <div class="es">The deployment choice never changes the product — one open, containerized platform</div>
+    <div class="echips">
+      <span class="echip">One codebase — containerized, open architecture</span>
+      <span class="echip">Org-scoped Q &amp; Sub-Q configuration</span>
+      <span class="echip">RBAC &amp; data isolation per organization</span>
+      <span class="echip">AAG connectors bridge clouds — storage · DB · SFTP · email</span>
+      <span class="echip">Central observability, audit &amp; telemetry</span>
+      <span class="echip">Features toggled per organization</span>
+    </div>
+  </div>
+
+  <div class="ft">
+    <span>MALKOM 3.0 — deployment model · 06-Aug-2026</span>
+    <span>Provisioning • Deployment structure options</span>
+  </div>
+</div>
+</body>
+</html>

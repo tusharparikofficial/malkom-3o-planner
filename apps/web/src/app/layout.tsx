@@ -16,6 +16,8 @@ const NAV = [
   { to: "/business-problem", label: "Business Problem", icon: "report_problem" },
   { to: "/solutions/blueprint", label: "Solutions", icon: "architecture", match: "/solutions" },
   { to: "/architecture/flow-diagram", label: "Architecture & Flow", icon: "account_tree", match: "/architecture" },
+  { to: "/deployment-model", label: "Client Deployment Model", icon: "cloud_sync" },
+  { to: "/assembler", label: "Assembler Demo", icon: "widgets" },
   { to: "/voice-of-customer", label: "Voice of Customer", icon: "record_voice_over" },
 ];
 

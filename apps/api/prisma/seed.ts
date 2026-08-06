@@ -7,6 +7,7 @@
  */
 import { PrismaClient, type BlockKind, type Prisma } from "@prisma/client";
 import { seedArchitecturePage } from "./architecture-page";
+import { seedDeploymentPage } from "./deployment-page";
 
 // Load env: local apps/api/.env first (wins — loadEnvFile never overrides
 // already-set vars), then repo root .env fills the gaps.
@@ -482,8 +483,9 @@ async function main() {
   }
 
   await seedArchitecturePage(prisma, system.id);
+  await seedDeploymentPage(prisma, system.id);
 
-  console.log("✅ Seed complete: 6 pages, 1 approach (3 options × 4 criteria), 3 timeline phases");
+  console.log("✅ Seed complete: 7 pages, 1 approach (3 options × 4 criteria), 3 timeline phases");
 }
 
 main()

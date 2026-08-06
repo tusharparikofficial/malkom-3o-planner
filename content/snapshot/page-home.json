@@ -142,9 +142,9 @@
   "kpis": {
    "approaches.count": "1",
    "options.count": "3",
-   "feedback.resolved": "0",
    "feedback.open": "1",
-   "milestone.next.days": "41"
+   "milestone.next.days": "41",
+   "feedback.resolved": "0"
   },
   "diagrams": {}
  }

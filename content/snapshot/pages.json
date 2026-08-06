@@ -46,5 +46,13 @@
   "summary": "Bookings flow, layered architecture & tech stack, modules, roles and core engines — the consolidated MALKOM 3.0 blueprint.",
   "order": 5,
   "updatedAt": "2026-08-06T05:18:39.523Z"
+ },
+ {
+  "id": "cmshi3u6p0001mo0f5e2zumhb",
+  "slug": "deployment-model",
+  "title": "Client Deployment Model",
+  "summary": "Multi-tenant provisioning — parent platform → organization setup → deployment structure.",
+  "order": 6,
+  "updatedAt": "2026-08-06T12:37:32.689Z"
  }
 ]
